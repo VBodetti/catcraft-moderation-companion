@@ -7,6 +7,7 @@ import net.catcraft.ccmc.client.ClientScreens;
 import net.catcraft.ccmc.config.CcmcConfig;
 import net.catcraft.ccmc.config.CcmcSettingsScreen;
 import net.catcraft.ccmc.config.StaffRank;
+import net.catcraft.ccmc.report.DiscordReportService;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
@@ -23,6 +24,7 @@ public final class CatCraftModerationCompanion implements ModInitializer {
                 settingsOpenPending = false;
                 ClientScreens.show(CcmcSettingsScreen.create(ClientScreens.current()));
             }
+            DiscordReportService.tick(client);
         });
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> dispatcher.register(
                 ClientCommands.literal("ccmc")

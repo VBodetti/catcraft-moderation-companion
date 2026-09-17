@@ -5,6 +5,7 @@ import net.catcraft.ccmc.client.ClientFeedback;
 import net.catcraft.ccmc.client.ClientScreens;
 import net.catcraft.ccmc.config.CcmcConfig;
 import net.catcraft.ccmc.config.StaffRank;
+import net.catcraft.ccmc.report.DiscordReportService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -85,7 +86,9 @@ public final class PlayerActionPopupScreen extends Screen {
                 back(x, y, w, View.MODERATE);
             }
             case KICK -> {
-                addCmd(x, y, w, "Inappropriate Name/Skin", "kick " + playerName + " Inappropriate name/skin. Please change before re-joining or it will result in a ban!"); y += row;
+                addReportableCmd(x, y, w, "Inappropriate Name/Skin",
+                        "kick " + playerName + " Inappropriate name/skin. Please change before re-joining or it will result in a ban!",
+                        "Inappropriate Name/Skin", "Kick"); y += row;
                 add(x, y, w, "Custom Reason", () -> prefill("/kick " + playerName + " ", "Kick")); y += row;
                 back(x, y, w, View.MODERATE);
             }
@@ -96,9 +99,9 @@ public final class PlayerActionPopupScreen extends Screen {
                 back(x, y, w, View.MODERATE);
             }
             case TEMP_MUTE_REASON -> {
-                addCmd(x, y, w, "Causing Drama", "ltempmute " + playerName + " " + duration + " Causing Drama"); y += row;
-                addCmd(x, y, w, "Spamming", "ltempmute " + playerName + " " + duration + " Spamming"); y += row;
-                addCmd(x, y, w, "Begging", "ltempmute " + playerName + " " + duration + " Begging"); y += row;
+                addReportableCmd(x, y, w, "Causing Drama", "ltempmute " + playerName + " " + duration + " Causing Drama", "Causing Drama", "Temp Mute " + duration); y += row;
+                addReportableCmd(x, y, w, "Spamming", "ltempmute " + playerName + " " + duration + " Spamming", "Spamming", "Temp Mute " + duration); y += row;
+                addReportableCmd(x, y, w, "Begging", "ltempmute " + playerName + " " + duration + " Begging", "Begging", "Temp Mute " + duration); y += row;
                 add(x, y, w, "Custom Reason", () -> prefill("/ltempmute " + playerName + " " + duration + " ", "Temp Mute")); y += row;
                 back(x, y, w, View.TEMP_MUTE_DURATION);
             }
@@ -184,10 +187,17 @@ public final class PlayerActionPopupScreen extends Screen {
     }
 
     private void addBanReason(int x, int y, int w, String label, String reason) {
-        addCmd(x, y, w, label, "tempban " + playerName + " " + duration + " " + reason);
+        addReportableCmd(x, y, w, label, "tempban " + playerName + " " + duration + " " + reason, label, "Temp Ban " + duration);
     }
 
-    private void reasonButton(int x, int y, int w, String label, String command) { addCmd(x, y, w, label, command); }
+    private void reasonButton(int x, int y, int w, String label, String command) {
+        addReportableCmd(x, y, w, label, command, label, "Warn");
+    }
+
+    private void addReportableCmd(int x, int y, int w, String label, String command, String offense, String punishment) {
+        add(x, y, w, label, () -> sendAndReport(command, offense, punishment));
+    }
+
     private void addCmd(int x, int y, int w, String label, String command) { add(x, y, w, label, () -> send(command)); }
     private void back(int x, int y, int w, View destination) { add(x, y, w, "Back", () -> show(destination, null)); }
 
@@ -204,14 +214,21 @@ public final class PlayerActionPopupScreen extends Screen {
         if (!ChatInputPrefill.prefill(this, text)) local("[CatCraft Staff] couldn't prepare " + label + " in chat; no command was sent.");
     }
 
-    private void send(String command) {
+    private void sendAndReport(String command, String offense, String punishment) {
+        if (!send(command)) return;
+        ClientScreens.show(oldScreen);
+        DiscordReportService.queue(playerName, offense, punishment);
+    }
+
+    private boolean send(String command) {
         var connection = Minecraft.getInstance().getConnection();
         if (connection == null) {
             local("[CatCraft Staff] action unavailable: not connected to a server.");
-            return;
+            return false;
         }
         connection.sendCommand(command);
         local("[CatCraft Staff] ran /" + command);
+        return true;
     }
 
     private void copyUsername() { Minecraft.getInstance().keyboardHandler.setClipboard(playerName); }
