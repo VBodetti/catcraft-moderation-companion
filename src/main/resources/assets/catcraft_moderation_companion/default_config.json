@@ -1,0 +1,13 @@
+{
+  "config.version": 2.0,
+  "general.Timestamp.Enabled": true,
+  "general.Timestamp.Pattern": "&8[{hour}:{minute}:{second}] &r",
+  "general.Timestamp.CopyToChatBar.Enabled": true,
+  "general.MessageStacking.Enabled": false,
+  "general.MessageStacking.ExactMatchOnly": false,
+  "general.MessageStacking.MaxRepeatCount": 100,
+  "general.StoredChatLines": 500,
+  "catcraft.StaffRank": "moderator",
+  "catcraft.PlayerClickMode": "normal",
+  "general.ChatIntegrationMode": "auto"
+}
