@@ -91,7 +91,13 @@ public final class DiscordReportService {
     }
 
     private static BufferedImage composeReportImage(BufferedImage evidence, PendingReport report) {
-        int headerHeight = Math.max(170, evidence.getHeight() / 7);
+        int margin = Math.max(24, evidence.getWidth() / 45);
+        int titleSize = Math.max(24, evidence.getWidth() / 44);
+        int bodySize = Math.max(18, evidence.getWidth() / 62);
+        int firstBodyLine = margin + titleSize + bodySize + 12;
+        int spacing = bodySize + 10;
+        int headerHeight = firstBodyLine + spacing * 3 + margin;
+
         BufferedImage output = new BufferedImage(evidence.getWidth(), headerHeight + evidence.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = output.createGraphics();
         try {
@@ -100,21 +106,15 @@ public final class DiscordReportService {
             g.setColor(new Color(24, 27, 32));
             g.fillRect(0, 0, output.getWidth(), headerHeight);
 
-            int margin = Math.max(24, evidence.getWidth() / 45);
-            int titleSize = Math.max(24, evidence.getWidth() / 44);
-            int bodySize = Math.max(18, evidence.getWidth() / 62);
-
             g.setColor(Color.WHITE);
             g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, titleSize));
             g.drawString("CatCraft Moderation Report", margin, margin + titleSize);
 
             g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, bodySize));
-            int line = margin + titleSize + bodySize + 12;
-            int spacing = bodySize + 10;
-            g.drawString("Player: " + report.player(), margin, line);
-            g.drawString("Offense: " + report.offense(), margin, line + spacing);
-            g.drawString("Punishment: " + report.punishment(), margin, line + spacing * 2);
-            g.drawString("Evidence captured: " + DISPLAY_TIME.format(report.createdAt()), margin, line + spacing * 3);
+            g.drawString("Player: " + report.player(), margin, firstBodyLine);
+            g.drawString("Offense: " + report.offense(), margin, firstBodyLine + spacing);
+            g.drawString("Punishment: " + report.punishment(), margin, firstBodyLine + spacing * 2);
+            g.drawString("Evidence captured: " + DISPLAY_TIME.format(report.createdAt()), margin, firstBodyLine + spacing * 3);
             g.drawImage(evidence, 0, headerHeight, null);
         } finally {
             g.dispose();
