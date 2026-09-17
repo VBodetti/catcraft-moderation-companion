@@ -20,19 +20,17 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
 
     // Minecraft 26.2+ uses Loom's non-obfuscated plugin. Fabric's official
-    // 26.2 example uses normal Gradle dependency configurations here.
+    // 26.2 example uses ordinary Gradle dependency configurations here.
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     implementation "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
 
-    // Optional at runtime; needed only to compile the Mod Menu integration entrypoint.
+    // Mod Menu is optional at runtime, but its API is needed to compile our integration entrypoint.
     implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-    // Fabric Loader 0.19.x already supplies MixinExtras at runtime. Keep an
-    // explicit compile/AP dependency so the custom injector annotations and
-    // processor are deterministic during CI builds without nesting another copy.
-    implementation "io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}"
-    annotationProcessor "io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}"
+    // Fabric Loader already provides MixinExtras at runtime. Depend only on the
+    // common API/AP during compilation so the release JAR does not carry a second copy.
+    compileOnly annotationProcessor("io.github.llamalad7:mixinextras-common:${project.mixinextras_version}")
 }
 
 java {
@@ -53,5 +51,11 @@ processResources {
     inputs.property 'version', project.version
     filesMatching('fabric.mod.json') {
         expand 'version': project.version
+    }
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.name}" }
     }
 }
