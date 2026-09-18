@@ -54,8 +54,9 @@ jobs:
           printf 'eula=true\n' > "$TEST_DIR/eula.txt"
 
           cd "$TEST_DIR"
+          "$JAVA_HOME/bin/java" -version
           set +e
-          (sleep 60; echo stop) | timeout 150s java -Xms512M -Xmx1536M -jar paper.jar --nogui > server.log 2>&1
+          (sleep 60; echo stop) | timeout 150s "$JAVA_HOME/bin/java" -Xms512M -Xmx1536M -jar paper.jar --nogui > server.log 2>&1
           SERVER_EXIT=$?
           set -e
 
