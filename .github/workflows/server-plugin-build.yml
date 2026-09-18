@@ -1,0 +1,44 @@
+name: Build CCMC Server Plugin
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'server-plugin/**'
+      - '.github/workflows/server-plugin-build.yml'
+  pull_request:
+    paths:
+      - 'server-plugin/**'
+      - '.github/workflows/server-plugin-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle 9.7.1
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '9.7.1'
+          cache-provider: basic
+
+      - name: Build server plugin
+        run: gradle -p server-plugin clean build --no-daemon --stacktrace
+
+      - name: Upload server plugin JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: ccmc-server-1.0.0-build
+          path: server-plugin/build/libs/*.jar
