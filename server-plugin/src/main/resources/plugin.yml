@@ -1,0 +1,33 @@
+name: CatCraftModerationCompanionServer
+version: '1.0.0'
+main: net.catcraft.ccmc.server.CcmcServerPlugin
+description: Server-side CatCraft moderation GUI for vanilla Java and Bedrock-compatible clients.
+author: B0_Deadly
+website: https://www.catcraft.net/
+api-version: '26.2'
+
+commands:
+  ccmc:
+    description: Open the CatCraft Moderation Companion server GUI.
+    usage: /ccmc [player]
+    permission: ccmc.use
+
+permissions:
+  ccmc.use:
+    description: Use the CCMC server GUI.
+    default: op
+  ccmc.moderator:
+    description: Use Moderator-level CCMC actions.
+    default: op
+    children:
+      ccmc.use: true
+  ccmc.seniormod:
+    description: Use Senior Moderator CCMC actions.
+    default: op
+    children:
+      ccmc.moderator: true
+  ccmc.admin:
+    description: Use Administrator-level CCMC actions.
+    default: op
+    children:
+      ccmc.seniormod: true
