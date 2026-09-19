@@ -4,7 +4,7 @@ import net.catcraft.ccmc.client.CcmcText;
 import net.catcraft.ccmc.client.ClientFeedback;
 import net.catcraft.ccmc.client.ClientScreens;
 import net.catcraft.ccmc.config.CcmcConfig;
-import net.catcraft.ccmc.config.StaffRank;
+import net.catcraft.ccmc.config.StaffCapability;\nimport net.catcraft.ccmc.config.StaffRole;
 import net.catcraft.ccmc.report.DiscordReportService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -68,11 +68,11 @@ public final class PlayerActionPopupScreen extends Screen {
                 addCmd(x, y, w, "Punish", "punish " + playerName); y += row;
                 add(x, y, w, "Temp Mute", () -> show(View.TEMP_MUTE_DURATION, null)); y += row;
                 add(x, y, w, "Warn", () -> show(View.WARN, null)); y += row;
-                addCmd(x, y, w, "Unmute", "lunmute " + playerName); y += row;
+                if (has(StaffCapability.MODERATOR_TOOLS)) { addCmd(x, y, w, "Unmute", "lunmute " + playerName); y += row; }
                 add(x, y, w, "Kick", () -> show(View.KICK, null)); y += row;
                 addCmd(x, y, w / 2 - 2, "Jail", "togglejail " + playerName + " 1");
                 addCmd(x + w / 2 + 2, y, w / 2 - 2, "Unjail", "unjail " + playerName); y += row;
-                if (atLeast(StaffRank.MODERATOR)) { add(x, y, w, "Temp Ban", () -> show(View.TEMP_BAN_DURATION, null)); y += row; }
+                if (has(StaffCapability.TEMP_BAN)) { add(x, y, w, "Temp Ban", () -> show(View.TEMP_BAN_DURATION, null)); y += row; }
                 back(x, y, w, View.ROOT);
             }
             case WARN -> {
@@ -165,7 +165,7 @@ public final class PlayerActionPopupScreen extends Screen {
                 addCmd(x, y, w, "Vanish", "vanish"); y += row;
                 addCmd(x, y, w, "Spectator Mode", "gamemode spectator"); y += row;
                 addCmd(x, y, w, "Survival Mode", "gamemode survival"); y += row;
-                if (atLeast(StaffRank.SENIOR_MODERATOR)) {
+                if (has(StaffCapability.SENIOR_TOOLS)) {
                     addCmd(x, y, w / 2 - 2, "Fly", "fly");
                     addCmd(x + w / 2 + 2, y, w / 2 - 2, "God", "god"); y += row;
                 }
