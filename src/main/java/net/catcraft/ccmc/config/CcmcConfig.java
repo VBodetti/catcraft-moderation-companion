@@ -17,7 +17,7 @@ public final class CcmcConfig {
     private static final Pattern ENTRY = Pattern.compile("\\\"((?:\\\\.|[^\\\"])*)\\\"\\s*:\\s*(\\\"(?:\\\\.|[^\\\"])*\\\"|true|false|-?\\d+(?:\\.\\d+)?)");
 
     static {
-        DEFAULTS.put("config.version", 2.0d);
+        DEFAULTS.put("config.version", 3.0d);
         DEFAULTS.put("general.Timestamp.Enabled", true);
         DEFAULTS.put("general.Timestamp.Pattern", "&8[{hour}:{minute}:{second}] &r");
         DEFAULTS.put("general.Timestamp.CopyToChatBar.Enabled", true);
@@ -25,7 +25,8 @@ public final class CcmcConfig {
         DEFAULTS.put("general.MessageStacking.ExactMatchOnly", false);
         DEFAULTS.put("general.MessageStacking.MaxRepeatCount", 100);
         DEFAULTS.put("general.StoredChatLines", 500);
-        DEFAULTS.put("catcraft.StaffRank", "moderator");
+        DEFAULTS.put("catcraft.PlayerRank", "member");
+        DEFAULTS.put("catcraft.StaffRole", "moderator");
         DEFAULTS.put("catcraft.PlayerClickMode", "normal");
         DEFAULTS.put("general.ChatIntegrationMode", "auto");
     }
@@ -35,15 +36,32 @@ public final class CcmcConfig {
     public static synchronized void init() {
         VALUES.clear();
         VALUES.putAll(DEFAULTS);
+
+        String legacyStaffRank = null;
+        boolean explicitStaffRole = false;
+
         if (Files.isRegularFile(FILE)) {
             try {
                 Matcher matcher = ENTRY.matcher(Files.readString(FILE, StandardCharsets.UTF_8));
                 while (matcher.find()) {
                     String key = unescape(matcher.group(1));
-                    if (DEFAULTS.containsKey(key)) VALUES.put(key, parseValue(matcher.group(2)));
+                    Object parsed = parseValue(matcher.group(2));
+                    if ("catcraft.StaffRank".equals(key)) {
+                        legacyStaffRank = String.valueOf(parsed);
+                        continue;
+                    }
+                    if (DEFAULTS.containsKey(key)) {
+                        VALUES.put(key, parsed);
+                        if ("catcraft.StaffRole".equals(key)) explicitStaffRole = true;
+                    }
                 }
             } catch (IOException ignored) {}
         }
+
+        if (!explicitStaffRole && legacyStaffRank != null) {
+            VALUES.put("catcraft.StaffRole", StaffRole.parse(legacyStaffRank).configValue());
+        }
+
         forceLockedSettings();
         save();
         refreshCache();
