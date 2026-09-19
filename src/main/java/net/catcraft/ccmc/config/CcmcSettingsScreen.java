@@ -16,10 +16,14 @@ public final class CcmcSettingsScreen {
                 .setTitle(tr("key.ccmc.gui.title"))
                 .setTransparentBackground(true);
         builder.setSavingRunnable(CcmcConfig::save);
-        ConfigEntryBuilder entries = builder.entryBuilder();
-        ConfigCategory general = builder.getOrCreateCategory(tr("key.ccmc.category.general"));
 
-        addString(general, entries, "catcraft.StaffRank");
+        ConfigEntryBuilder entries = builder.entryBuilder();
+
+        ConfigCategory profile = builder.getOrCreateCategory(tr("key.ccmc.category.profile"));
+        addPlayerRank(profile, entries);
+        addStaffRole(profile, entries);
+
+        ConfigCategory general = builder.getOrCreateCategory(tr("key.ccmc.category.general"));
         addString(general, entries, "catcraft.PlayerClickMode");
         addString(general, entries, "general.ChatIntegrationMode");
         addBoolean(general, entries, "general.Timestamp.Enabled");
@@ -28,6 +32,32 @@ public final class CcmcSettingsScreen {
         addSlider(general, entries, "general.MessageStacking.MaxRepeatCount", 1, 500);
         addSlider(general, entries, "general.StoredChatLines", 100, 5000);
         return builder.build();
+    }
+
+    private static void addPlayerRank(ConfigCategory category, ConfigEntryBuilder entries) {
+        PlayerRank current = PlayerRank.parse(CcmcConfig.getString("catcraft.PlayerRank"));
+        PlayerRank defaultValue = PlayerRank.parse(String.valueOf(CcmcConfig.getDefault("catcraft.PlayerRank")));
+        category.addEntry(entries.startEnumSelector(
+                        tr("key.ccmc.catcraft.PlayerRank"),
+                        PlayerRank.class,
+                        current)
+                .setDefaultValue(defaultValue)
+                .setTooltip(tr("key.ccmc.catcraft.PlayerRank.@Tooltip"))
+                .setSaveConsumer(value -> CcmcConfig.set("catcraft.PlayerRank", value.configValue()))
+                .build());
+    }
+
+    private static void addStaffRole(ConfigCategory category, ConfigEntryBuilder entries) {
+        StaffRole current = StaffRole.parse(CcmcConfig.getString("catcraft.StaffRole"));
+        StaffRole defaultValue = StaffRole.parse(String.valueOf(CcmcConfig.getDefault("catcraft.StaffRole")));
+        category.addEntry(entries.startEnumSelector(
+                        tr("key.ccmc.catcraft.StaffRole"),
+                        StaffRole.class,
+                        current)
+                .setDefaultValue(defaultValue)
+                .setTooltip(tr("key.ccmc.catcraft.StaffRole.@Tooltip"))
+                .setSaveConsumer(value -> CcmcConfig.set("catcraft.StaffRole", value.configValue()))
+                .build());
     }
 
     private static void addString(ConfigCategory category, ConfigEntryBuilder entries, String key) {
