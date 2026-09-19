@@ -4,7 +4,8 @@ import net.catcraft.ccmc.client.CcmcText;
 import net.catcraft.ccmc.client.ClientFeedback;
 import net.catcraft.ccmc.client.ClientScreens;
 import net.catcraft.ccmc.config.CcmcConfig;
-import net.catcraft.ccmc.config.StaffRank;
+import net.catcraft.ccmc.config.StaffCapability;
+import net.catcraft.ccmc.config.StaffRole;
 import net.catcraft.ccmc.report.DiscordReportService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -50,10 +51,12 @@ public final class PlayerActionPopupScreen extends Screen {
             case ROOT -> {
                 add(x, y, w / 2 - 2, "Message", () -> prefill("/msg " + playerName + " ", "Message"));
                 add(x + w / 2 + 2, y, w / 2 - 2, "Mail", () -> prefill("/mail send " + playerName + " ", "Mail")); y += row;
-                if (atLeast(StaffRank.MODERATOR)) { add(x, y, w, "Teleport", () -> show(View.TELEPORT, null)); y += row; }
-                add(x, y, w, "Moderate", () -> show(View.MODERATE, null)); y += row;
-                add(x, y, w, "Investigate", () -> show(View.INVESTIGATE, null)); y += row;
-                if (atLeast(StaffRank.MODERATOR)) { add(x, y, w, "Tools", () -> show(View.TOOLS, null)); y += row; }
+                if (has(StaffCapability.PLAYER_TELEPORT)) { add(x, y, w, "Teleport", () -> show(View.TELEPORT, null)); y += row; }
+                if (has(StaffCapability.BASIC_MODERATION)) {
+                    add(x, y, w, "Moderate", () -> show(View.MODERATE, null)); y += row;
+                    add(x, y, w, "Investigate", () -> show(View.INVESTIGATE, null)); y += row;
+                }
+                if (has(StaffCapability.MODERATOR_TOOLS)) { add(x, y, w, "Tools", () -> show(View.TOOLS, null)); y += row; }
                 add(x, y, w, "Copy Username", this::copyUsername); y += row;
                 add(x, y, w, "Close", this::onClose);
             }
@@ -68,11 +71,11 @@ public final class PlayerActionPopupScreen extends Screen {
                 addCmd(x, y, w, "Punish", "punish " + playerName); y += row;
                 add(x, y, w, "Temp Mute", () -> show(View.TEMP_MUTE_DURATION, null)); y += row;
                 add(x, y, w, "Warn", () -> show(View.WARN, null)); y += row;
-                addCmd(x, y, w, "Unmute", "lunmute " + playerName); y += row;
+                if (has(StaffCapability.MODERATOR_TOOLS)) { addCmd(x, y, w, "Unmute", "lunmute " + playerName); y += row; }
                 add(x, y, w, "Kick", () -> show(View.KICK, null)); y += row;
                 addCmd(x, y, w / 2 - 2, "Jail", "togglejail " + playerName + " 1");
                 addCmd(x + w / 2 + 2, y, w / 2 - 2, "Unjail", "unjail " + playerName); y += row;
-                if (atLeast(StaffRank.MODERATOR)) { add(x, y, w, "Temp Ban", () -> show(View.TEMP_BAN_DURATION, null)); y += row; }
+                if (has(StaffCapability.TEMP_BAN)) { add(x, y, w, "Temp Ban", () -> show(View.TEMP_BAN_DURATION, null)); y += row; }
                 back(x, y, w, View.ROOT);
             }
             case WARN -> {
@@ -128,7 +131,7 @@ public final class PlayerActionPopupScreen extends Screen {
             }
             case INVESTIGATE -> {
                 add(x, y, w, "Player Info", () -> show(View.PLAYER_INFO, null)); y += row;
-                if (atLeast(StaffRank.MODERATOR)) {
+                if (has(StaffCapability.ADVANCED_INVESTIGATION)) {
                     add(x, y, w, "Inventories", () -> show(View.INVENTORIES, null)); y += row;
                     add(x, y, w, "Anti-Cheat", () -> show(View.ANTICHEAT, null)); y += row;
                     add(x, y, w, "CoreProtect", () -> show(View.COREPROTECT, null)); y += row;
@@ -165,7 +168,7 @@ public final class PlayerActionPopupScreen extends Screen {
                 addCmd(x, y, w, "Vanish", "vanish"); y += row;
                 addCmd(x, y, w, "Spectator Mode", "gamemode spectator"); y += row;
                 addCmd(x, y, w, "Survival Mode", "gamemode survival"); y += row;
-                if (atLeast(StaffRank.SENIOR_MODERATOR)) {
+                if (has(StaffCapability.SENIOR_TOOLS)) {
                     addCmd(x, y, w / 2 - 2, "Fly", "fly");
                     addCmd(x + w / 2 + 2, y, w / 2 - 2, "God", "god"); y += row;
                 }
@@ -207,8 +210,8 @@ public final class PlayerActionPopupScreen extends Screen {
 
     private void show(View next, String duration) { ClientScreens.show(new PlayerActionPopupScreen(oldScreen, playerName, anchorX, anchorY, next, duration)); }
 
-    private boolean atLeast(StaffRank minimum) { return rank().ordinal() >= minimum.ordinal(); }
-    private StaffRank rank() { return StaffRank.parse(CcmcConfig.getString("catcraft.StaffRank")); }
+    private StaffRole role() { return StaffRole.parse(CcmcConfig.getString("catcraft.StaffRole")); }
+    private boolean has(StaffCapability capability) { return role().has(capability); }
 
     private void prefill(String text, String label) {
         if (!ChatInputPrefill.prefill(this, text)) local("[CatCraft Staff] couldn't prepare " + label + " in chat; no command was sent.");

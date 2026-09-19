@@ -6,7 +6,8 @@ import net.catcraft.ccmc.client.ClientFeedback;
 import net.catcraft.ccmc.client.ClientScreens;
 import net.catcraft.ccmc.config.CcmcConfig;
 import net.catcraft.ccmc.config.CcmcSettingsScreen;
-import net.catcraft.ccmc.config.StaffRank;
+import net.catcraft.ccmc.config.PlayerRank;
+import net.catcraft.ccmc.config.StaffRole;
 import net.catcraft.ccmc.report.DiscordReportService;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -15,7 +16,8 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 public final class CatCraftModerationCompanion implements ModInitializer {
-    private static final String RANK_KEY = "catcraft.StaffRank";
+    private static final String PLAYER_RANK_KEY = "catcraft.PlayerRank";
+    private static final String STAFF_ROLE_KEY = "catcraft.StaffRole";
     private boolean settingsOpenPending;
 
     @Override public void onInitialize() {
@@ -26,32 +28,64 @@ public final class CatCraftModerationCompanion implements ModInitializer {
             }
             DiscordReportService.tick(client);
         });
+
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> dispatcher.register(
                 ClientCommands.literal("ccmc")
-                        .executes(ctx -> showStatus())
+                        .executes(ctx -> showProfile())
+                        .then(ClientCommands.literal("profile").executes(ctx -> showProfile()))
+                        .then(ClientCommands.literal("player-rank")
+                                .executes(ctx -> showPlayerRank())
+                                .then(playerRankLiteral("member", PlayerRank.MEMBER))
+                                .then(playerRankLiteral("cat", PlayerRank.CAT))
+                                .then(playerRankLiteral("leopard", PlayerRank.LEOPARD))
+                                .then(playerRankLiteral("cheetah", PlayerRank.CHEETAH))
+                                .then(playerRankLiteral("jaguar", PlayerRank.JAGUAR))
+                                .then(playerRankLiteral("tiger", PlayerRank.TIGER))
+                                .then(playerRankLiteral("lion", PlayerRank.LION)))
+                        .then(ClientCommands.literal("role")
+                                .executes(ctx -> showStaffRole())
+                                .then(staffRoleLiteral("none", StaffRole.NONE))
+                                .then(staffRoleLiteral("helper", StaffRole.HELPER))
+                                .then(staffRoleLiteral("moderator", StaffRole.MODERATOR))
+                                .then(staffRoleLiteral("senior", StaffRole.SENIOR_MODERATOR))
+                                .then(staffRoleLiteral("administrator", StaffRole.ADMINISTRATOR))
+                                .then(staffRoleLiteral("senior-admin", StaffRole.SENIOR_ADMINISTRATOR))
+                                .then(staffRoleLiteral("developer", StaffRole.DEVELOPER))
+                                .then(staffRoleLiteral("owner", StaffRole.OWNER)))
+                        // Legacy 1.0/early-1.1 alias. "rank" continues to mean staff role.
                         .then(ClientCommands.literal("rank")
-                                .executes(ctx -> showRank())
-                                .then(rankLiteral("helper", StaffRank.HELPER))
-                                .then(rankLiteral("moderator", StaffRank.MODERATOR))
-                                .then(rankLiteral("senior", StaffRank.SENIOR_MODERATOR))
-                                .then(rankLiteral("administrator", StaffRank.ADMINISTRATOR)))
+                                .executes(ctx -> showStaffRole())
+                                .then(staffRoleLiteral("helper", StaffRole.HELPER))
+                                .then(staffRoleLiteral("moderator", StaffRole.MODERATOR))
+                                .then(staffRoleLiteral("senior", StaffRole.SENIOR_MODERATOR))
+                                .then(staffRoleLiteral("administrator", StaffRole.ADMINISTRATOR)))
                         .then(ClientCommands.literal("settings").executes(ctx -> queueSettings()))
                         .then(ClientCommands.literal("menu").executes(new OpenStaffMenuCommand()))));
+
         StaffMenuKeyHandler.register();
     }
 
-    private LiteralArgumentBuilder<FabricClientCommandSource> rankLiteral(String literal, StaffRank rank) {
-        return ClientCommands.literal(literal).executes(ctx -> setRank(rank));
+    private LiteralArgumentBuilder<FabricClientCommandSource> playerRankLiteral(String literal, PlayerRank rank) {
+        return ClientCommands.literal(literal).executes(ctx -> setPlayerRank(rank));
     }
 
-    private int showStatus() {
-        local("[CatCraft Staff] Moderation Companion ready. Staff rank: " + currentRank().displayName());
-        local("[CatCraft Staff] Use /ccmc menu for staff tools or /ccmc settings for configuration.");
+    private LiteralArgumentBuilder<FabricClientCommandSource> staffRoleLiteral(String literal, StaffRole role) {
+        return ClientCommands.literal(literal).executes(ctx -> setStaffRole(role));
+    }
+
+    private int showProfile() {
+        local("[CCMC] CatCraft profile: " + currentPlayerRank().displayName() + " • " + currentStaffRole().displayName());
+        local("[CCMC] Use /ccmc menu for Companion tools or /ccmc settings to change your profile.");
         return 1;
     }
 
-    private int showRank() {
-        local("[CatCraft Staff] Current staff rank: " + currentRank().displayName());
+    private int showPlayerRank() {
+        local("[CCMC] Player rank: " + currentPlayerRank().displayName());
+        return 1;
+    }
+
+    private int showStaffRole() {
+        local("[CCMC] Staff role: " + currentStaffRole().displayName());
         return 1;
     }
 
@@ -60,14 +94,23 @@ public final class CatCraftModerationCompanion implements ModInitializer {
         return 1;
     }
 
-    private int setRank(StaffRank rank) {
-        StaffRank before = currentRank();
-        CcmcConfig.set(RANK_KEY, rank.configValue());
+    private int setPlayerRank(PlayerRank rank) {
+        PlayerRank before = currentPlayerRank();
+        CcmcConfig.set(PLAYER_RANK_KEY, rank.configValue());
         CcmcConfig.save();
-        local("[CatCraft Staff] Staff rank changed: " + before.displayName() + " -> " + rank.displayName());
+        local("[CCMC] Player rank changed: " + before.displayName() + " -> " + rank.displayName());
         return 1;
     }
 
-    private StaffRank currentRank() { return StaffRank.parse(CcmcConfig.getString(RANK_KEY)); }
+    private int setStaffRole(StaffRole role) {
+        StaffRole before = currentStaffRole();
+        CcmcConfig.set(STAFF_ROLE_KEY, role.configValue());
+        CcmcConfig.save();
+        local("[CCMC] Staff role changed: " + before.displayName() + " -> " + role.displayName());
+        return 1;
+    }
+
+    private PlayerRank currentPlayerRank() { return PlayerRank.parse(CcmcConfig.getString(PLAYER_RANK_KEY)); }
+    private StaffRole currentStaffRole() { return StaffRole.parse(CcmcConfig.getString(STAFF_ROLE_KEY)); }
     private static void local(String message) { ClientFeedback.send(CcmcText.literal(message)); }
 }
