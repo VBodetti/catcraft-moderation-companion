@@ -50,10 +50,12 @@ public final class PlayerActionPopupScreen extends Screen {
             case ROOT -> {
                 add(x, y, w / 2 - 2, "Message", () -> prefill("/msg " + playerName + " ", "Message"));
                 add(x + w / 2 + 2, y, w / 2 - 2, "Mail", () -> prefill("/mail send " + playerName + " ", "Mail")); y += row;
-                if (atLeast(StaffRank.MODERATOR)) { add(x, y, w, "Teleport", () -> show(View.TELEPORT, null)); y += row; }
-                add(x, y, w, "Moderate", () -> show(View.MODERATE, null)); y += row;
-                add(x, y, w, "Investigate", () -> show(View.INVESTIGATE, null)); y += row;
-                if (atLeast(StaffRank.MODERATOR)) { add(x, y, w, "Tools", () -> show(View.TOOLS, null)); y += row; }
+                if (has(StaffCapability.PLAYER_TELEPORT)) { add(x, y, w, "Teleport", () -> show(View.TELEPORT, null)); y += row; }
+                if (has(StaffCapability.BASIC_MODERATION)) {
+                    add(x, y, w, "Moderate", () -> show(View.MODERATE, null)); y += row;
+                    add(x, y, w, "Investigate", () -> show(View.INVESTIGATE, null)); y += row;
+                }
+                if (has(StaffCapability.MODERATOR_TOOLS)) { add(x, y, w, "Tools", () -> show(View.TOOLS, null)); y += row; }
                 add(x, y, w, "Copy Username", this::copyUsername); y += row;
                 add(x, y, w, "Close", this::onClose);
             }
@@ -128,7 +130,7 @@ public final class PlayerActionPopupScreen extends Screen {
             }
             case INVESTIGATE -> {
                 add(x, y, w, "Player Info", () -> show(View.PLAYER_INFO, null)); y += row;
-                if (atLeast(StaffRank.MODERATOR)) {
+                if (has(StaffCapability.ADVANCED_INVESTIGATION)) {
                     add(x, y, w, "Inventories", () -> show(View.INVENTORIES, null)); y += row;
                     add(x, y, w, "Anti-Cheat", () -> show(View.ANTICHEAT, null)); y += row;
                     add(x, y, w, "CoreProtect", () -> show(View.COREPROTECT, null)); y += row;
@@ -207,8 +209,8 @@ public final class PlayerActionPopupScreen extends Screen {
 
     private void show(View next, String duration) { ClientScreens.show(new PlayerActionPopupScreen(oldScreen, playerName, anchorX, anchorY, next, duration)); }
 
-    private boolean atLeast(StaffRank minimum) { return rank().ordinal() >= minimum.ordinal(); }
-    private StaffRank rank() { return StaffRank.parse(CcmcConfig.getString("catcraft.StaffRank")); }
+    private StaffRole role() { return StaffRole.parse(CcmcConfig.getString("catcraft.StaffRole")); }
+    private boolean has(StaffCapability capability) { return role().has(capability); }
 
     private void prefill(String text, String label) {
         if (!ChatInputPrefill.prefill(this, text)) local("[CatCraft Staff] couldn't prepare " + label + " in chat; no command was sent.");
