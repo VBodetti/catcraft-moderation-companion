@@ -366,16 +366,16 @@ public final class StaffMenuScreen extends Screen {
 
     private View parentOf(View current) {
         return switch (current) {
-            case ROOT -> ROOT;
-            case TRAVEL, SOCIAL, CLAIMS, MARKET, CLANS, UTILITIES, STAFF -> ROOT;
-            case QUICK_TRAVEL, HOMES, WARPS, KITS -> TRAVEL;
-            case SOCIAL_CHAT -> SOCIAL;
-            case CLAIM_BASICS -> CLAIMS;
-            case MARKET_SHOPS -> MARKET;
-            case CLAN_TOOLS -> CLANS;
-            case PERSONAL_TOOLS -> UTILITIES;
+            case ROOT -> View.ROOT;
+            case TRAVEL, SOCIAL, CLAIMS, MARKET, CLANS, UTILITIES, STAFF -> View.ROOT;
+            case QUICK_TRAVEL, HOMES, WARPS, KITS -> View.TRAVEL;
+            case SOCIAL_CHAT -> View.SOCIAL;
+            case CLAIM_BASICS -> View.CLAIMS;
+            case MARKET_SHOPS -> View.MARKET;
+            case CLAN_TOOLS -> View.CLANS;
+            case PERSONAL_TOOLS -> View.UTILITIES;
             case STAFF_MODERATION, STAFF_INVESTIGATION, STAFF_TELEPORT, STAFF_CLAIMS,
-                    STAFF_ANTICHEAT, STAFF_CHAT, STAFF_SERVER, STAFF_ELEVATED -> STAFF;
+                    STAFF_ANTICHEAT, STAFF_CHAT, STAFF_SERVER, STAFF_ELEVATED -> View.STAFF;
         };
     }
 
