@@ -1,10 +1,10 @@
-# CatCraft Moderation Companion
+# CatCraft Companion
 
-CatCraft Moderation Companion (CCMC) is a client-side Fabric utility for CatCraft staff, authored by **B0_Deadly**.
+CatCraft Companion (CCC) is a client-side Fabric mod for CatCraft, authored by **B0_Deadly**. It gives players a searchable command companion and gives staff capability-filtered investigation and moderation tools without changing server behavior.
 
 ## Version
 
-**1.0.0** for Minecraft Java **26.2**.
+**1.1.0** for Minecraft Java **26.2**.
 
 ## Requirements
 
@@ -15,29 +15,34 @@ CatCraft Moderation Companion (CCMC) is a client-side Fabric utility for CatCraf
 - Cloth Config 26.2.155 or newer
 - Mod Menu is optional
 
-## Core features
+## Features
 
-- Player-name moderation popup from chat
-- Direct Message and Mail actions with editable command prefills
-- Moderator teleport, punishment, investigation, inventory, anti-cheat, and CoreProtect actions
-- Global Staff Menu via `/ccmc menu` and a rebindable F8 key
-- Rank-aware command visibility so Senior Moderator/Admin-only actions are not exposed to lower ranks
-- Optional timestamps, two-action message copy menu, and configurable retained chat history
-- Conflict-aware chat integration: in `auto` mode CCMC yields overlapping chat processing when a supported external chat processor is installed while moderation features remain active
+- F8 opens the global CatCraft Companion; `/ccc menu` opens it from chat
+- Focused live search from the top of the F8 menu for commands and actions
+- Task-oriented navigation for travel, homes, players, claims, pets, trading, clans, perks, and staff tools
+- Live completion-backed Homes and Kits selectors plus a compact CatCraft Warps selector
+- Search for online or offline players and open their player profile
+- Player profiles with skin, username, formatted nickname, online/last-seen state, playtime, and joined date when CatCraft exposes those values
+- Player actions including TPA, TPA Here, Trade, Message, Mail, Ignore, GivePet, Meow, and Purr
+- Staff profile tabs for history, CoreProtect, anti-cheat, trade logs, investigation, and moderation
+- Separate Player Rank and Staff Role settings with capability-based filtering
+- Correct Moderator commands for Unmute (`/lunmute`), Jail (`/togglejail PLAYER 1`), and Unjail (`/unjail PLAYER`)
+- Discord moderation-report capture for fixed punishment actions
+- Optional timestamps, timestamp-only copy options, retained chat history, and conflict-aware chat integration
 
-## Chat Integration Mode
+## Configuration
 
-- `auto` — CCMC automatically yields overlapping timestamp/history processing when a supported external chat processor is detected
-- `ccmc` — CCMC handles its own chat enhancements
-- `external` — CCMC chat processing is disabled explicitly
+Use `/ccc settings` or Mod Menu. Existing `catcraft_moderation_companion.json` settings are retained automatically; the internal mod ID also remains unchanged for upgrade compatibility.
 
-This setting affects only overlapping chat enhancements. Moderation and staff tools remain active in every mode.
+Chat Integration Mode supports:
+
+- `auto` — yield overlapping chat processing when a supported external chat processor is detected
+- `ccc` — use CatCraft Companion timestamps and history (`ccmc` remains accepted for compatibility)
+- `external` — disable CatCraft Companion chat processing only
 
 ## Build
 
-This project targets Java 25 and Minecraft 26.2. The GitHub Actions workflow builds with a pinned Gradle version and Java 25.
-
-For a local build with Gradle 9.5.1 installed:
+This project targets Java 25 and Minecraft 26.2. Build locally with Gradle 9.7.1 or a compatible Gradle 9 release:
 
 ```bash
 gradle build

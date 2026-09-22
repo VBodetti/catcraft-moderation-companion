@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.0
+
+- Rebranded the mod as CatCraft Companion with the `/ccc` client command and a new icon
+- Added a focused, live command/action search to the F8 menu
+- Added searchable player profiles for online and offline players
+- Added full-player skin rendering, real username and formatted nickname display, online/last-seen state, playtime, and joined date when available from CatCraft
+- Added Player and Staff profile tabs with target-player actions and capability-filtered staff tools
+- Added live completion-backed Homes and Kits selectors without duplicating server data
+- Replaced the nonfunctional `/warps` shortcut with a compact CatCraft warp selector
+- Separated Player Rank from Staff Role and expanded capability filtering
+- Expanded the task-oriented player command tree and preserved predictable Back, Main Menu, Close, and Escape navigation
+- Preserved timestamp-only copy behavior, chat compatibility, moderation-report capture, and corrected Jail, Unjail, and Unmute routing
+
 ## 1.0.0
 
 Initial public release of CatCraft Moderation Companion.

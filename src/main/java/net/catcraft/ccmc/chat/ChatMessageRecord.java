@@ -17,3 +17,4 @@ public final class ChatMessageRecord {
         this.outsideServerChat = outsideServerChat;
     }
 }
+

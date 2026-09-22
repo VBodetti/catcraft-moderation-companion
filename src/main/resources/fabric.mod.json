@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "id": "catcraft_moderation_companion",
   "version": "${version}",
-  "name": "CatCraft Moderation Companion",
-  "description": "Client-side moderation, investigation, staff utilities, and conflict-aware chat enhancements for CatCraft staff.",
+  "name": "CatCraft Companion",
+  "description": "Client-side command navigation, player profiles, staff utilities, and conflict-aware chat enhancements for CatCraft players.",
   "authors": [
     {
       "name": "B0_Deadly"

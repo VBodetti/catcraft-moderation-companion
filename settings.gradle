@@ -5,4 +5,4 @@ pluginManagement {
         mavenCentral()
     }
 }
-rootProject.name = 'catcraft-moderation-companion'
+rootProject.name = 'catcraft-companion'

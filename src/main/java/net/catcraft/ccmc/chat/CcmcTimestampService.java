@@ -10,42 +10,40 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
 public final class CcmcTimestampService {
-    private CcmcTimestampService() {}
+    private CcmcTimestampService() {
+    }
 
-    public static Component apply(Component message, String id) {
-        String pattern = formatPattern(CcmcConfig.getString("general.Timestamp.Pattern"), LocalDateTime.now());
-        ChatFormatting color = leadingColor(pattern);
-        MutableComponent timestamp = Component.literal(stripCodes(pattern));
-        if (color != null) timestamp.withStyle(color);
-        if (CcmcConfig.getBoolean("general.Timestamp.CopyToChatBar.Enabled")) {
-            Style style = timestamp.getStyle()
-                    .withHoverEvent(new HoverEvent.ShowText(Component.translatable("key.ccmc.texts.copy.launch")))
-                    .withClickEvent(new ClickEvent.RunCommand("/ccmc-copy " + id));
-            timestamp.setStyle(style);
+    public static Component apply(Component component, String string) {
+        String string2 = CcmcTimestampService.formatPattern(CcmcConfig.getString("general.Timestamp.Pattern"), LocalDateTime.now());
+        ChatFormatting chatFormatting = CcmcTimestampService.leadingColor(string2);
+        MutableComponent mutableComponent = Component.literal((String)CcmcTimestampService.stripCodes(string2));
+        if (chatFormatting != null) {
+            mutableComponent.withStyle(chatFormatting);
         }
-        return timestamp.append(message);
+        if (CcmcConfig.getBoolean("general.Timestamp.CopyToChatBar.Enabled")) {
+            Style style = mutableComponent.getStyle().withHoverEvent((HoverEvent)new HoverEvent.ShowText((Component)Component.translatable((String)"key.ccmc.texts.copy.launch", (Object[])new Object[0]))).withClickEvent((ClickEvent)new ClickEvent.RunCommand("/ccc-copy " + string));
+            mutableComponent.setStyle(style);
+        }
+        return Component.empty().append((Component)mutableComponent).append(component);
     }
 
-    public static String formatPattern(String pattern, LocalDateTime time) {
-        String p = pattern == null ? "&8[{hour}:{minute}:{second}] &r" : pattern;
-        return p.replace("{year}", "%04d".formatted(time.getYear()))
-                .replace("{month}", "%02d".formatted(time.getMonthValue()))
-                .replace("{day}", "%02d".formatted(time.getDayOfMonth()))
-                .replace("{hour}", "%02d".formatted(time.getHour()))
-                .replace("{minute}", "%02d".formatted(time.getMinute()))
-                .replace("{second}", "%02d".formatted(time.getSecond()));
+    public static String formatPattern(String string, LocalDateTime localDateTime) {
+        String string2 = string == null ? "&8[{hour}:{minute}:{second}] &r" : string;
+        return string2.replace("{year}", "%04d".formatted(localDateTime.getYear())).replace("{month}", "%02d".formatted(localDateTime.getMonthValue())).replace("{day}", "%02d".formatted(localDateTime.getDayOfMonth())).replace("{hour}", "%02d".formatted(localDateTime.getHour())).replace("{minute}", "%02d".formatted(localDateTime.getMinute())).replace("{second}", "%02d".formatted(localDateTime.getSecond()));
     }
 
-    public static String stripCodes(String value) {
-        return value == null ? "" : value.replaceAll("(?i)[&§][0-9A-FK-OR]", "");
+    public static String stripCodes(String string) {
+        return string == null ? "" : string.replaceAll("(?i)[&\u00a7][0-9A-FK-OR]", "");
     }
 
-    private static ChatFormatting leadingColor(String value) {
-        if (value == null || value.length() < 2) return null;
-        for (int i = 0; i < value.length() - 1; i++) {
-            char prefix = value.charAt(i);
-            if (prefix != '&' && prefix != '§') continue;
-            return switch (Character.toLowerCase(value.charAt(i + 1))) {
+    private static ChatFormatting leadingColor(String string) {
+        if (string == null || string.length() < 2) {
+            return null;
+        }
+        for (int i = 0; i < string.length() - 1; ++i) {
+            char c = string.charAt(i);
+            if (c != '&' && c != '\u00a7') continue;
+            return switch (Character.toLowerCase(string.charAt(i + 1))) {
                 case '0' -> ChatFormatting.BLACK;
                 case '1' -> ChatFormatting.DARK_BLUE;
                 case '2' -> ChatFormatting.DARK_GREEN;

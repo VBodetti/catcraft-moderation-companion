@@ -4,34 +4,44 @@ import net.catcraft.ccmc.chat.CcmcTimestampService;
 import net.catcraft.ccmc.chat.ChatMessageRecord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public final class MessageCopyScreen extends Screen {
+public final class MessageCopyScreen
+extends Screen {
     private final Screen oldScreen;
     private final ChatMessageRecord unit;
 
     public MessageCopyScreen(ChatMessageRecord unit) {
-        super(Component.translatable("key.ccmc.texts.copy.title"));
+        super((Component)Component.translatable((String)"key.ccmc.texts.copy.title"));
         this.oldScreen = Minecraft.getInstance().gui.screen();
         this.unit = unit;
     }
 
-    @Override protected void init() {
+    protected void init() {
         super.init();
-        int x = width / 2 - 100;
-        int y = height / 2 - 38;
-        addRenderableWidget(Button.builder(Component.translatable("key.ccmc.texts.copy.copyRaw"), b -> copy(false)).pos(x, y).size(200, 20).build());
-        addRenderableWidget(Button.builder(Component.translatable("key.ccmc.texts.copy.copyWithNoColorCode"), b -> copy(true)).pos(x, y + 24).size(200, 20).build());
-        addRenderableWidget(Button.builder(Component.translatable("key.ccmc.texts.copy.cancel"), b -> closeToPrevious()).pos(x, y + 56).size(200, 20).build());
+        int x = this.width / 2 - 100;
+        int y = this.height / 2 - 38;
+        this.addRenderableWidget((GuiEventListener)Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.copyRaw"), b -> this.copy(false)).pos(x, y).size(200, 20).build());
+        this.addRenderableWidget((GuiEventListener)Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.copyWithNoColorCode"), b -> this.copy(true)).pos(x, y + 24).size(200, 20).build());
+        this.addRenderableWidget((GuiEventListener)Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.cancel"), b -> this.closeToPrevious()).pos(x, y + 56).size(200, 20).build());
     }
 
-    @Override public void onClose() { closeToPrevious(); }
-    public void closeToPrevious() { Minecraft.getInstance().gui.setScreen(oldScreen); }
+    public void onClose() {
+        this.closeToPrevious();
+    }
+
+    public void closeToPrevious() {
+        Minecraft.getInstance().gui.setScreen(this.oldScreen);
+    }
 
     public void copy(boolean stripFormatting) {
-        String text = unit.original.getString();
-        if (stripFormatting) text = CcmcTimestampService.stripCodes(text);
+        String text = this.unit.original.getString();
+        if (stripFormatting) {
+            text = CcmcTimestampService.stripCodes(text);
+        }
         Minecraft.getInstance().keyboardHandler.setClipboard(text);
     }
 }
+
