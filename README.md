@@ -1,19 +1,20 @@
 # CatCraft Companion
 
-CatCraft Companion (CCC) is a client-side Fabric mod for CatCraft, authored by **B0_Deadly**. It gives players a searchable command companion and gives staff capability-filtered investigation and moderation tools without changing server behavior.
+CatCraft Companion (CCC) is a client-side Fabric and NeoForge mod for CatCraft, authored by **B0_Deadly**. It gives players a searchable command companion and gives staff capability-filtered investigation and moderation tools without changing server behavior. The Fabric artifact is also distributed for Quilt after compatibility testing; there is no separate Quilt JAR.
 
 ## Version
 
 **1.1.0** for Minecraft Java **26.2**.
 
-## Requirements
+## Loader support
 
-- Minecraft Java 26.2
-- Fabric Loader 0.19.5 or newer
-- Fabric API compatible with 26.2
-- Java 25
-- Cloth Config 26.2.155 or newer
-- Mod Menu is optional
+- **Fabric:** Fabric Loader 0.19.5+, Fabric API 0.160.0+26.2, and Cloth Config 26.2.155+
+- **NeoForge:** NeoForge 26.2.0.88+ and Cloth Config 26.2.155+
+- **Quilt:** the Fabric artifact with a compatible Quilt Loader, plus the **Fabric** builds of Fabric API 0.160.0+26.2 and Cloth Config 26.2.155
+
+The Modrinth App may hide Fabric API and Cloth Config when adding content to a Quilt profile because those dependency releases are tagged Fabric. Quilt users must download the two Fabric dependency JARs and place them directly in the profile's `mods` folder. This exact setup has passed in-game testing on Minecraft 26.2.
+
+All distributions require Minecraft Java 26.2 and Java 25. Mod Menu is optional on Fabric and Quilt; NeoForge exposes the settings screen through its native mod list.
 
 ## Features
 
@@ -32,7 +33,7 @@ CatCraft Companion (CCC) is a client-side Fabric mod for CatCraft, authored by *
 
 ## Configuration
 
-Use `/ccc settings` or Mod Menu. Existing `catcraft_moderation_companion.json` settings are retained automatically; the internal mod ID also remains unchanged for upgrade compatibility.
+Use `/ccc settings`, Mod Menu on Fabric/Quilt, or NeoForge's mod-list configuration button. Existing `catcraft_moderation_companion.json` settings are retained automatically across loaders; the internal mod ID also remains unchanged for upgrade compatibility.
 
 Chat Integration Mode supports:
 
@@ -42,13 +43,13 @@ Chat Integration Mode supports:
 
 ## Build
 
-This project targets Java 25 and Minecraft 26.2. Build locally with Gradle 9.7.1 or a compatible Gradle 9 release:
+This project targets Java 25 and Minecraft 26.2. Shared code lives under `common/`; the loader adapters live under `fabric/` and `neoforge/`. Build both distributions with Gradle 9.7.1 or a compatible Gradle 9 release:
 
 ```bash
 gradle build
 ```
 
-The production JAR is generated under `build/libs/`.
+The loader-specific JARs are generated under `fabric/build/libs/` and `neoforge/build/libs/`.
 
 ## CatCraft
 

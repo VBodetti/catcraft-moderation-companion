@@ -31,10 +31,14 @@ jobs:
       - name: Build
         run: gradle clean build --no-daemon --stacktrace
 
+      - name: Static audit
+        run: bash scripts/static-audit.sh
+
       - name: Upload release JARs
         uses: actions/upload-artifact@v4
         with:
-          name: ccmc-1.0.0-build
+          name: catcraft-companion-1.1.0-multiloader-build
           path: |
-            build/libs/*.jar
-            !build/libs/*-sources.jar
+            fabric/build/libs/*.jar
+            neoforge/build/libs/*.jar
+            !**/*-sources.jar

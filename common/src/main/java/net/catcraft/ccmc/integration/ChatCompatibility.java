@@ -2,7 +2,7 @@ package net.catcraft.ccmc.integration;
 
 import java.util.Set;
 import net.catcraft.ccmc.config.CcmcConfig;
-import net.fabricmc.loader.api.FabricLoader;
+import net.catcraft.ccmc.platform.PlatformBridge;
 
 public final class ChatCompatibility {
     private static final Set<String> EXTERNAL_CHAT_PROCESSORS = Set.of("chattools", "chatpatches", "chatplus");
@@ -11,8 +11,7 @@ public final class ChatCompatibility {
     }
 
     public static boolean externalChatProcessorDetected() {
-        FabricLoader loader = FabricLoader.getInstance();
-        return EXTERNAL_CHAT_PROCESSORS.stream().anyMatch(arg_0 -> ((FabricLoader)loader).isModLoaded(arg_0));
+        return EXTERNAL_CHAT_PROCESSORS.stream().anyMatch(PlatformBridge::isModLoaded);
     }
 
     public static boolean externalChatOwnsChat() {
