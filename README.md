@@ -41,7 +41,7 @@ Chat Integration Mode supports:
 
 ## Build
 
-This project targets Java 25 and Minecraft 26.2. Shared code lives under `common/`; the loader adapters live under `fabric/` and `neoforge/`. Build both distributions with Gradle 9.2.1 or a compatible Gradle 9 release:
+This project targets Java 25 and Minecraft 26.2. Shared code lives under `common/`; the loader adapters live under `fabric/` and `neoforge/`. Build both distributions with Gradle 9.7.1 or a compatible Gradle 9 release:
 
 ```bash
 gradle build
