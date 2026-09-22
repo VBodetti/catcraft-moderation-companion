@@ -2,6 +2,9 @@
 
 ## 1.1.0
 
+- Added a dedicated NeoForge 26.2 distribution while preserving the existing Fabric release
+- Added a shared-code project structure for maintaining Fabric and NeoForge together
+- Added Quilt distribution through the runtime-verified Fabric artifact rather than a duplicate Quilt build
 - Rebranded the mod as CatCraft Companion with the `/ccc` client command and a new icon
 - Added a focused, live command/action search to the F8 menu
 - Added searchable player profiles for online and offline players

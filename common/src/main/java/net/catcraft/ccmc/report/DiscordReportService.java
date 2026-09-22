@@ -23,7 +23,7 @@ import java.util.Locale;
 import javax.imageio.ImageIO;
 import net.catcraft.ccmc.client.CcmcText;
 import net.catcraft.ccmc.client.ClientFeedback;
-import net.fabricmc.loader.api.FabricLoader;
+import net.catcraft.ccmc.platform.PlatformBridge;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.network.chat.Component;
@@ -69,7 +69,7 @@ public final class DiscordReportService {
     private static void saveAndCopy(Minecraft client, PendingReport report, NativeImage image) {
         String stamp = FILE_TIME.format(report.createdAt());
         String playerFile = DiscordReportService.sanitizeFilename(report.player());
-        Path reportDir = FabricLoader.getInstance().getGameDir().resolve("screenshots").resolve("ccmc-reports");
+        Path reportDir = PlatformBridge.gameDirectory().resolve("screenshots").resolve("ccmc-reports");
         Path rawPath = reportDir.resolve(stamp + "_" + playerFile + "_evidence.png");
         Path reportPath = reportDir.resolve(stamp + "_" + playerFile + "_discord-report.png");
         try {

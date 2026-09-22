@@ -1,53 +1,14 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
-    id 'maven-publish'
+    id 'base'
 }
 
 version = project.mod_version
 group = project.maven_group
 
-base {
-    archivesName = project.archives_base_name
+tasks.named('build') {
+    dependsOn ':fabric:build', ':neoforge:build'
 }
 
-repositories {
-    mavenCentral()
-    maven { url = 'https://maven.shedaniel.me/' }
-    maven { url = 'https://maven.terraformersmc.com/releases/' }
-}
-
-dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-    implementation "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
-    implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
-    compileOnly annotationProcessor("io.github.llamalad7:mixinextras-common:${project.mixinextras_version}")
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-    withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.release = 25
-    options.encoding = 'UTF-8'
-}
-
-processResources {
-    inputs.property 'version', project.version
-    filesMatching('fabric.mod.json') {
-        expand 'version': project.version
-    }
-}
-
-jar {
-    from('LICENSE') {
-        rename { "${it}_${project.name}" }
-    }
+tasks.named('clean') {
+    dependsOn ':fabric:clean', ':neoforge:clean'
 }

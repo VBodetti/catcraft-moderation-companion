@@ -22,19 +22,23 @@ jobs:
           distribution: temurin
           java-version: '25'
 
-      - name: Set up Gradle 9.7.1
+      - name: Set up Gradle 9.2.1
         uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: '9.7.1'
+          gradle-version: '9.2.1'
           cache-provider: basic
 
       - name: Build
         run: gradle clean build --no-daemon --stacktrace
 
+      - name: Static audit
+        run: bash scripts/static-audit.sh
+
       - name: Upload release JARs
         uses: actions/upload-artifact@v4
         with:
-          name: ccmc-1.0.0-build
+          name: catcraft-companion-1.1.0-multiloader-build
           path: |
-            build/libs/*.jar
-            !build/libs/*-sources.jar
+            fabric/build/libs/*.jar
+            neoforge/build/libs/*.jar
+            !**/*-sources.jar

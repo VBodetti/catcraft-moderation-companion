@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.catcraft.ccmc.config.StaffRole;
-import net.fabricmc.loader.api.FabricLoader;
+import net.catcraft.ccmc.platform.PlatformBridge;
 
 public final class CcmcConfig {
-    private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("catcraft_moderation_companion.json");
+    private static final Path FILE = PlatformBridge.configDirectory().resolve("catcraft_moderation_companion.json");
     private static final Map<String, Object> DEFAULTS = new LinkedHashMap<String, Object>();
     private static final Map<String, Object> VALUES = new LinkedHashMap<String, Object>();
     private static final Pattern ENTRY = Pattern.compile("\\\"((?:\\\\.|[^\\\"])*)\\\"\\s*:\\s*(\\\"(?:\\\\.|[^\\\"])*\\\"|true|false|-?\\d+(?:\\.\\d+)?)");
@@ -203,4 +203,3 @@ public final class CcmcConfig {
         DEFAULTS.put("general.ChatIntegrationMode", "auto");
     }
 }
-
