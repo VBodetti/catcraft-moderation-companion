@@ -20,7 +20,7 @@ implements ClientTickEvents.EndTick {
     public static void register() {
         KeyMapping.Category category = KeyMapping.Category.register((Identifier)Identifier.fromNamespaceAndPath((String)"catcraft_moderation_companion", (String)"catcraft_staff"));
         KeyMapping mapping = KeyMappingHelper.registerKeyMapping((KeyMapping)new KeyMapping("key.ccmc.staff_menu", InputConstants.Type.KEYSYM, 297, category));
-        ClientTickEvents.END_CLIENT_TICK.register((Object)new StaffMenuKeyHandler(mapping));
+        ClientTickEvents.END_CLIENT_TICK.register(new StaffMenuKeyHandler(mapping));
     }
 
     public static void requestOpen() {
@@ -38,4 +38,3 @@ implements ClientTickEvents.EndTick {
         }
     }
 }
-

@@ -12,7 +12,7 @@ e1b533817592abb236d813c5e0c1c97eacd28496787b5f3075c9f5f459f7f3fe  ./scripts/stat
 3fa367e39da65cdb8bbb9936c56409da24a74e4e4c9434109a59663c2ad787c3  ./src/main/java/net/catcraft/ccmc/CatCraftModerationCompanion.java
 bf8512038fa9b2345e42a860aa8cc87fef46f84855ceabd63550725b70653285  ./src/main/java/net/catcraft/ccmc/CcmcCore.java
 27d603aecf02f5dea70c15d3db2cbe840d87e5b48c999768fbf90ee52a6c90c6  ./src/main/java/net/catcraft/ccmc/OpenStaffMenuCommand.java
-b18943f0c6c2de1854ef3cbf18a9952539b60de60985d80eb46aee72944dbee7  ./src/main/java/net/catcraft/ccmc/StaffMenuKeyHandler.java
+9553756e460cc611e95e53a8065c9e468f08c1a6b5c767bbcacbcab24b77f52d  ./src/main/java/net/catcraft/ccmc/StaffMenuKeyHandler.java
 49627d5f52e4c10b89c99bce676cf8ac5a9663d3d2ea1a1e555b9e5288fc4cb5  ./src/main/java/net/catcraft/ccmc/chat/CcmcTimestampService.java
 e833c815cd1554f565eea1abb7431baabfc22d4c3751f0fcc44df7a20af65733  ./src/main/java/net/catcraft/ccmc/chat/ChatHistoryStore.java
 f926bb8b2afe8cd2104e07a9fd85c054f873bae6616547945fc8ddc10cebcc0a  ./src/main/java/net/catcraft/ccmc/chat/ChatMessageRecord.java
@@ -20,15 +20,15 @@ f926bb8b2afe8cd2104e07a9fd85c054f873bae6616547945fc8ddc10cebcc0a  ./src/main/jav
 6fb08d266aae590c00559edf965b7fef35061f6c49b1eca1742325164376e875  ./src/main/java/net/catcraft/ccmc/client/ClientFeedback.java
 e2c13f9f1098ee12cb011c706abf14d0b686e79df16678527a7e277fed232954  ./src/main/java/net/catcraft/ccmc/client/ClientScreens.java
 b9506b4e53f0113fd90a7a21e97a2c67043586c19c6d6eafd368b5ba584902ab  ./src/main/java/net/catcraft/ccmc/config/CcmcConfig.java
-c81405b87bfa31563aad63d9c799335b29b5a54e803591f10d61e7424d7bfb5e  ./src/main/java/net/catcraft/ccmc/config/CcmcSettingsScreen.java
+1c326913bc8b0d7d0951b0e24a8972ea9bd9e720faa948bbc9b60ede99f2c488  ./src/main/java/net/catcraft/ccmc/config/CcmcSettingsScreen.java
 e02f0794ab686a78417fa899e9b14b6cbdce74ece1bfb2367aeb8bb03f2272e2  ./src/main/java/net/catcraft/ccmc/config/PlayerRank.java
 e6f0bc7581bf1c861b4352524e3000a64f1bb25fa10770b8249f3a0e22dafbd0  ./src/main/java/net/catcraft/ccmc/config/StaffCapability.java
 c93a5937b91b1942dcf72d252429824761f39252de2afe41304a2e67894eaddc  ./src/main/java/net/catcraft/ccmc/config/StaffRole.java
 53830d4d81ec7008657989e1ebbebc47c49f9c8ef98c42ec74d54bfc0bb0d6d3  ./src/main/java/net/catcraft/ccmc/gui/ChatInputPrefill.java
-06fb142f4f065ff3a939af4efc379f94bde6507418658a89d96e28ca649883d3  ./src/main/java/net/catcraft/ccmc/gui/DynamicCommandPickerScreen.java
+023a6a273262ff1727a1191d9f344f0588fb4d1a33b5e0fd5a14a31aac4825e1  ./src/main/java/net/catcraft/ccmc/gui/DynamicCommandPickerScreen.java
 733f950aeeadc13e39cba3b2d92336048942ed8f2d55e9084c0efb55cd09c9c9  ./src/main/java/net/catcraft/ccmc/gui/LegacyStaffActionScreen.java
 691508855d7717cbd39d0109b62a559093377a9127c96248382a21efe52bb0fc  ./src/main/java/net/catcraft/ccmc/gui/MenuSearchScreen.java
-6047c99e3e0cc2f249dbe392734954e1729d028c7275de51d287e8db3ec2b6a2  ./src/main/java/net/catcraft/ccmc/gui/MessageCopyScreen.java
+a50824414ec5c5319ff4afa0291b54c26891c178b95130dcedaa48e46ecab9c3  ./src/main/java/net/catcraft/ccmc/gui/MessageCopyScreen.java
 4ead05febf5716c7d5ae2583fdc7afc2efae8a1a32d130e8d0399abc38285d34  ./src/main/java/net/catcraft/ccmc/gui/PlayerActionPopupScreen.java
 5e8ba701d193ae4cefd667f92a839a601632b09e21e49d64727e2676002d385b  ./src/main/java/net/catcraft/ccmc/gui/PlayerProfileQueryCapture.java
 5f54b670eb839443d9872a988b5228d582962a5161771c20e1980cabec9ea04b  ./src/main/java/net/catcraft/ccmc/gui/PlayerSearchScreen.java

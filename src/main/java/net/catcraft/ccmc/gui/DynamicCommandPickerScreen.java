@@ -130,10 +130,10 @@ extends Screen {
             return;
         }
         try {
-            CommandDispatcher commandDispatcher = clientPacketListener.getCommands();
+            CommandDispatcher<ClientSuggestionProvider> commandDispatcher = clientPacketListener.getCommands();
             ClientSuggestionProvider clientSuggestionProvider = clientPacketListener.getSuggestionsProvider();
-            ParseResults parseResults = commandDispatcher.parse(this.kind.query, (Object)clientSuggestionProvider);
-            CompletableFuture completableFuture = commandDispatcher.getCompletionSuggestions(parseResults);
+            ParseResults<ClientSuggestionProvider> parseResults = commandDispatcher.parse(this.kind.query, clientSuggestionProvider);
+            CompletableFuture<Suggestions> completableFuture = commandDispatcher.getCompletionSuggestions(parseResults);
             completableFuture.whenComplete(this::applySuggestions);
         }
         catch (Throwable throwable) {
@@ -194,7 +194,7 @@ extends Screen {
     }
 
     private void add(int n, int n2, int n3, String string, Runnable runnable) {
-        this.addRenderableWidget((GuiEventListener)Button.builder((Component)Component.literal((String)string), button -> runnable.run()).pos(n, n2).size(n3, 20).build());
+        this.addRenderableWidget(Button.builder((Component)Component.literal((String)string), button -> runnable.run()).pos(n, n2).size(n3, 20).build());
     }
 
     public void onClose() {
@@ -219,4 +219,3 @@ extends Screen {
         }
     }
 }
-

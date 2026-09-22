@@ -40,13 +40,13 @@ public final class CcmcSettingsScreen {
     private static void addPlayerRank(ConfigCategory category, ConfigEntryBuilder entries) {
         PlayerRank current = PlayerRank.parse(CcmcConfig.getString("catcraft.PlayerRank"));
         PlayerRank defaultValue = PlayerRank.parse(String.valueOf(CcmcConfig.getDefault("catcraft.PlayerRank")));
-        category.addEntry((AbstractConfigListEntry)entries.startEnumSelector(CcmcSettingsScreen.tr("key.ccmc.catcraft.PlayerRank"), PlayerRank.class, (Enum)current).setDefaultValue((Enum)defaultValue).setTooltip(new Component[]{CcmcSettingsScreen.tr("key.ccmc.catcraft.PlayerRank.@Tooltip")}).setSaveConsumer(value -> CcmcConfig.set("catcraft.PlayerRank", value.configValue())).build());
+        category.addEntry(entries.startEnumSelector(CcmcSettingsScreen.tr("key.ccmc.catcraft.PlayerRank"), PlayerRank.class, current).setDefaultValue(defaultValue).setTooltip(new Component[]{CcmcSettingsScreen.tr("key.ccmc.catcraft.PlayerRank.@Tooltip")}).setSaveConsumer(value -> CcmcConfig.set("catcraft.PlayerRank", value.configValue())).build());
     }
 
     private static void addStaffRole(ConfigCategory category, ConfigEntryBuilder entries) {
         StaffRole current = StaffRole.parse(CcmcConfig.getString("catcraft.StaffRole"));
         StaffRole defaultValue = StaffRole.parse(String.valueOf(CcmcConfig.getDefault("catcraft.StaffRole")));
-        category.addEntry((AbstractConfigListEntry)entries.startEnumSelector(CcmcSettingsScreen.tr("key.ccmc.catcraft.StaffRole"), StaffRole.class, (Enum)current).setDefaultValue((Enum)defaultValue).setTooltip(new Component[]{CcmcSettingsScreen.tr("key.ccmc.catcraft.StaffRole.@Tooltip")}).setSaveConsumer(value -> CcmcConfig.set("catcraft.StaffRole", value.configValue())).build());
+        category.addEntry(entries.startEnumSelector(CcmcSettingsScreen.tr("key.ccmc.catcraft.StaffRole"), StaffRole.class, current).setDefaultValue(defaultValue).setTooltip(new Component[]{CcmcSettingsScreen.tr("key.ccmc.catcraft.StaffRole.@Tooltip")}).setSaveConsumer(value -> CcmcConfig.set("catcraft.StaffRole", value.configValue())).build());
     }
 
     private static void addString(ConfigCategory category, ConfigEntryBuilder entries, String key) {
@@ -54,11 +54,10 @@ public final class CcmcSettingsScreen {
     }
 
     private static void addBoolean(ConfigCategory category, ConfigEntryBuilder entries, String key) {
-        category.addEntry((AbstractConfigListEntry)((BooleanToggleBuilder)entries.startBooleanToggle(CcmcSettingsScreen.tr("key.ccmc." + key), CcmcConfig.getBoolean(key)).setDefaultValue((Object)((Boolean)CcmcConfig.getDefault(key)))).setTooltip(new Component[]{CcmcSettingsScreen.tr("key.ccmc." + key + ".@Tooltip")}).setSaveConsumer(value -> CcmcConfig.set(key, value)).build());
+        category.addEntry(entries.startBooleanToggle(CcmcSettingsScreen.tr("key.ccmc." + key), CcmcConfig.getBoolean(key)).setDefaultValue((Boolean)CcmcConfig.getDefault(key)).setTooltip(new Component[]{CcmcSettingsScreen.tr("key.ccmc." + key + ".@Tooltip")}).setSaveConsumer(value -> CcmcConfig.set(key, value)).build());
     }
 
     private static void addSlider(ConfigCategory category, ConfigEntryBuilder entries, String key, int min, int max) {
         category.addEntry((AbstractConfigListEntry)entries.startIntSlider(CcmcSettingsScreen.tr("key.ccmc." + key), CcmcConfig.getInt(key), min, max).setDefaultValue(((Number)CcmcConfig.getDefault(key)).intValue()).setTooltip(new Component[]{CcmcSettingsScreen.tr("key.ccmc." + key + ".@Tooltip")}).setSaveConsumer(value -> CcmcConfig.set(key, value)).build());
     }
 }
-

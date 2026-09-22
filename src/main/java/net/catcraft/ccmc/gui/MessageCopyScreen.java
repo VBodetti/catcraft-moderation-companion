@@ -4,7 +4,6 @@ import net.catcraft.ccmc.chat.CcmcTimestampService;
 import net.catcraft.ccmc.chat.ChatMessageRecord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -23,9 +22,9 @@ extends Screen {
         super.init();
         int x = this.width / 2 - 100;
         int y = this.height / 2 - 38;
-        this.addRenderableWidget((GuiEventListener)Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.copyRaw"), b -> this.copy(false)).pos(x, y).size(200, 20).build());
-        this.addRenderableWidget((GuiEventListener)Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.copyWithNoColorCode"), b -> this.copy(true)).pos(x, y + 24).size(200, 20).build());
-        this.addRenderableWidget((GuiEventListener)Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.cancel"), b -> this.closeToPrevious()).pos(x, y + 56).size(200, 20).build());
+        this.addRenderableWidget(Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.copyRaw"), b -> this.copy(false)).pos(x, y).size(200, 20).build());
+        this.addRenderableWidget(Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.copyWithNoColorCode"), b -> this.copy(true)).pos(x, y + 24).size(200, 20).build());
+        this.addRenderableWidget(Button.builder((Component)Component.translatable((String)"key.ccmc.texts.copy.cancel"), b -> this.closeToPrevious()).pos(x, y + 56).size(200, 20).build());
     }
 
     public void onClose() {
@@ -44,4 +43,3 @@ extends Screen {
         Minecraft.getInstance().keyboardHandler.setClipboard(text);
     }
 }
-
