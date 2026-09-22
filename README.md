@@ -10,7 +10,9 @@ CatCraft Companion (CCC) is a client-side Fabric and NeoForge mod for CatCraft, 
 
 - **Fabric:** Fabric Loader 0.19.5+, Fabric API 0.160.0+26.2, and Cloth Config 26.2.155+
 - **NeoForge:** NeoForge 26.2.0.88+ and Cloth Config 26.2.155+
-- **Quilt:** the Fabric artifact with a compatible Quilt Loader, Fabric API, and Cloth Config
+- **Quilt:** the Fabric artifact with a compatible Quilt Loader, plus the **Fabric** builds of Fabric API 0.160.0+26.2 and Cloth Config 26.2.155
+
+The Modrinth App may hide Fabric API and Cloth Config when adding content to a Quilt profile because those dependency releases are tagged Fabric. Quilt users must download the two Fabric dependency JARs and place them directly in the profile's `mods` folder. This exact setup has passed in-game testing on Minecraft 26.2.
 
 All distributions require Minecraft Java 26.2 and Java 25. Mod Menu is optional on Fabric and Quilt; NeoForge exposes the settings screen through its native mod list.
 
