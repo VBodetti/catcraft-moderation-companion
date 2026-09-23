@@ -52,8 +52,7 @@ public final class CatCraftCompanionNeoForge {
         event.registerCategory(category);
         this.companionKey = new KeyMapping(
                 "key.ccmc.staff_menu",
-                InputConstants.Type.KEYSYM,
-                297,
+                InputConstants.KEY_F8,
                 category);
         event.register(this.companionKey);
     }

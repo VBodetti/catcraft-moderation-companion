@@ -19,7 +19,7 @@ implements ClientTickEvents.EndTick {
 
     public static void register() {
         KeyMapping.Category category = KeyMapping.Category.register((Identifier)Identifier.fromNamespaceAndPath((String)"catcraft_moderation_companion", (String)"catcraft_staff"));
-        KeyMapping mapping = KeyMappingHelper.registerKeyMapping((KeyMapping)new KeyMapping("key.ccmc.staff_menu", InputConstants.Type.KEYSYM, 297, category));
+        KeyMapping mapping = KeyMappingHelper.registerKeyMapping((KeyMapping)new KeyMapping("key.ccmc.staff_menu", InputConstants.KEY_F8, category));
         ClientTickEvents.END_CLIENT_TICK.register(new StaffMenuKeyHandler(mapping));
     }
 
