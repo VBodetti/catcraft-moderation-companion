@@ -47,6 +47,7 @@ neoForge {
 
 dependencies {
     implementation "me.shedaniel.cloth:cloth-config-neoforge:${project.cloth_config_version}"
+    compileOnly 'org.lwjgl:lwjgl-glfw:3.3.3'
 }
 
 tasks.withType(JavaCompile).configureEach {

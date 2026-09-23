@@ -27,6 +27,7 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     implementation "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
     implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+    compileOnly 'org.lwjgl:lwjgl-glfw:3.3.3'
     compileOnly annotationProcessor("io.github.llamalad7:mixinextras-common:${project.mixinextras_version}")
 }
 
