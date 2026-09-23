@@ -37,7 +37,7 @@ jobs:
       - name: Upload release JARs
         uses: actions/upload-artifact@v4
         with:
-          name: catcraft-companion-1.1.0-multiloader-build
+          name: catcraft-companion-multiloader-build
           path: |
             fabric/build/libs/*.jar
             neoforge/build/libs/*.jar
