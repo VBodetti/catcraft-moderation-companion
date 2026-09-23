@@ -113,7 +113,7 @@ public final class PlayerActionPopupScreen extends Screen {
         staffButton(left, top + step * 2, half, "History", StaffCapability.BASIC_MODERATION, () -> runQuery(QueryView.HISTORY));
         staffButton(right, top + step * 2, half, "20 Min Mute", StaffCapability.BASIC_MODERATION, () -> LegacyStaffActionScreen.openQuickMute(this, playerName));
         staffButton(left, top + step * 3, half, "Unmute", StaffCapability.MODERATOR_TOOLS, () -> send("lunmute " + playerName));
-        staffButton(right, top + step * 3, half, "Jail", StaffCapability.BASIC_MODERATION, () -> send("togglejail " + playerName + " 1"));
+        staffButton(right, top + step * 3, half, "Jail", StaffCapability.BASIC_MODERATION, () -> send("jail " + playerName));
         staffButton(left, top + step * 4, half, "Unjail", StaffCapability.BASIC_MODERATION, () -> send("unjail " + playerName));
         staffButton(right, top + step * 4, half, "Warn", StaffCapability.BASIC_MODERATION, () -> LegacyStaffActionScreen.openQuickWarn(this, playerName));
         staffButton(left, top + step * 5, half, "Punish", StaffCapability.BASIC_MODERATION, () -> send("punish " + playerName));

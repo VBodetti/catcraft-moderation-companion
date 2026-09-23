@@ -2,6 +2,8 @@
 
 ## 1.1.1
 
+- Updated Fabric, Quilt, and NeoForge distributions for Minecraft 26.3
+- Changed every Jail shortcut to `/jail PLAYER` with no numeric argument
 - Made the player profile the action screen, with slimmer Player and Staff tabs and taller direct-action buttons
 - Left-aligned player details and moved Member Since, Playtime, and online or last-seen status into readable profile labels; expanded Known As space
 - Replaced the large Refresh action with a small profile refresh control, moved Itembox Held Item and Ignore, and added a direct Full Command List action

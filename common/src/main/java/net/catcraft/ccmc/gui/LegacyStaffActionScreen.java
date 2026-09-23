@@ -104,7 +104,7 @@ extends Screen {
                     n3 += n4;
                 }
                 this.add(n2, n3, n, "Kick", () -> this.show(View.KICK, null));
-                this.addCmd(n2, n3 += n4, n / 2 - 2, "Jail", "togglejail " + this.playerName + " 1");
+                this.addCmd(n2, n3 += n4, n / 2 - 2, "Jail", "jail " + this.playerName);
                 this.addCmd(n2 + n / 2 + 2, n3, n / 2 - 2, "Unjail", "unjail " + this.playerName);
                 n3 += n4;
                 if (this.has(StaffCapability.TEMP_BAN)) {

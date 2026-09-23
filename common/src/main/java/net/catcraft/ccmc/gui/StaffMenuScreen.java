@@ -622,7 +622,7 @@ extends Screen {
 
     private void staffModeration(int n, int n2) {
         this.grid(n, n2, 0, "Punish Player...", () -> this.prefill("/punish ", "Punish"), "Player History...", () -> this.prefill("/history ", "History"));
-        this.grid(n, n2, 1, "Jail Player...", () -> this.prefill("/togglejail ", "Jail"), "Kick Player...", () -> this.prefill("/kick ", "Kick"));
+        this.grid(n, n2, 1, "Jail Player...", () -> this.prefill("/jail ", "Jail"), "Kick Player...", () -> this.prefill("/kick ", "Kick"));
         this.nav(n, n2 + 48 + 10, View.STAFF);
     }
 
