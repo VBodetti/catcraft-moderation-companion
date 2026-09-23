@@ -1,6 +1,7 @@
 package net.catcraft.ccmc.mixin;
 
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.catcraft.ccmc.chat.ChatHistoryStore;
 import net.catcraft.ccmc.chat.ChatMessageRecord;
 import net.catcraft.ccmc.client.ClientScreens;
@@ -10,7 +11,6 @@ import net.catcraft.ccmc.gui.PlayerActionPopupScreen;
 import net.catcraft.ccmc.gui.PlayerProfileQueryCapture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -54,11 +54,15 @@ public class PlayerNameClickMixin {
     }
 
     private boolean ccmc$isShiftDown() {
-        return Screen.hasShiftDown();
+        Window window = Minecraft.getInstance().getWindow();
+        return InputConstants.isKeyDown(window, InputConstants.KEY_LSHIFT)
+                || InputConstants.isKeyDown(window, InputConstants.KEY_RSHIFT);
     }
 
     private boolean ccmc$isCtrlDown() {
-        return Screen.hasControlDown();
+        Window window = Minecraft.getInstance().getWindow();
+        return InputConstants.isKeyDown(window, InputConstants.KEY_LCONTROL)
+                || InputConstants.isKeyDown(window, InputConstants.KEY_RCONTROL);
     }
 
     private String ccmc$extractPlayerName(Style style) {
