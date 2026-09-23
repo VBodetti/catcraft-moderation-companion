@@ -1,0 +1,84 @@
+name: Build CCMC Server Plugin
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'server-plugin/**'
+      - '.github/workflows/server-plugin-build.yml'
+  pull_request:
+    paths:
+      - 'server-plugin/**'
+      - '.github/workflows/server-plugin-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle 9.7.1
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '9.7.1'
+          cache-provider: basic
+
+      - name: Build server plugin
+        run: gradle -p server-plugin clean build --no-daemon --stacktrace
+
+      - name: Smoke-test plugin on Paper 26.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          USER_AGENT='ccmc-server-validation/1.0.0 (https://github.com/VBodetti/catcraft-moderation-companion)'
+          TEST_DIR="$RUNNER_TEMP/ccmc-paper-smoke"
+          mkdir -p "$TEST_DIR/plugins"
+
+          BUILDS_JSON="$(curl -fsSL -H "User-Agent: $USER_AGENT"             https://fill.papermc.io/v3/projects/paper/versions/26.2/builds)"
+
+          PAPER_URL="$(python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(x["downloads"]["server:default"]["url"] for x in data if x.get("channel")=="STABLE"))'             <<< "$BUILDS_JSON")"
+
+          curl -fsSL -H "User-Agent: $USER_AGENT" -o "$TEST_DIR/paper.jar" "$PAPER_URL"
+          cp server-plugin/build/libs/catcraft-moderation-companion-server-*.jar "$TEST_DIR/plugins/"
+          printf 'eula=true\n' > "$TEST_DIR/eula.txt"
+
+          cd "$TEST_DIR"
+          "$JAVA_HOME/bin/java" -version
+          set +e
+          (sleep 60; echo stop) | timeout 150s "$JAVA_HOME/bin/java" -Xms512M -Xmx1536M -jar paper.jar --nogui > server.log 2>&1
+          SERVER_EXIT=$?
+          set -e
+
+          cat server.log
+
+          if ! grep -q 'CCMC Server 1.0.0 enabled for Paper 26.2.' server.log; then
+            echo 'CCMC did not enable successfully during the Paper smoke test.'
+            exit 1
+          fi
+
+          if grep -Eqi 'Error occurred while enabling CatCraftModerationCompanionServer|Unsupported API version|Could not load .*catcraft-moderation-companion-server' server.log; then
+            echo 'Paper reported a CCMC plugin loading error.'
+            exit 1
+          fi
+
+          if [ "$SERVER_EXIT" -ne 0 ] && [ "$SERVER_EXIT" -ne 124 ]; then
+            echo "Paper smoke test exited unexpectedly with code $SERVER_EXIT."
+            exit "$SERVER_EXIT"
+          fi
+
+      - name: Upload server plugin JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: ccmc-server-1.0.0-build
+          path: server-plugin/build/libs/*.jar
