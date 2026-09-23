@@ -3,13 +3,12 @@ package net.catcraft.ccmc.config;
 import java.util.Locale;
 
 public enum PlayerRank {
-    MEMBER("Member", "member", 0),
-    CAT("Cat", "cat", 1),
-    LEOPARD("Leopard", "leopard", 2),
-    CHEETAH("Cheetah", "cheetah", 3),
-    JAGUAR("Jaguar", "jaguar", 4),
-    TIGER("Tiger", "tiger", 5),
-    LION("Lion", "lion", 6);
+    CAT("Cat", "cat", 0),
+    LEOPARD("Leopard", "leopard", 1),
+    CHEETAH("Cheetah", "cheetah", 2),
+    JAGUAR("Jaguar", "jaguar", 3),
+    TIGER("Tiger", "tiger", 4),
+    LION("Lion", "lion", 5);
 
     private final String displayName;
     private final String configValue;
@@ -39,14 +38,15 @@ public enum PlayerRank {
 
     public static PlayerRank parse(String value) {
         if (value == null) {
-            return MEMBER;
+            return CAT;
         }
         String normalized = PlayerRank.normalize(value);
+        if ("member".equals(normalized)) return CAT;
         for (PlayerRank rank : PlayerRank.values()) {
             if (!rank.configValue.equals(normalized) && !PlayerRank.normalize(rank.displayName).equals(normalized)) continue;
             return rank;
         }
-        return MEMBER;
+        return CAT;
     }
 
     private static String normalize(String value) {
@@ -57,4 +57,3 @@ public enum PlayerRank {
         return this.displayName;
     }
 }
-

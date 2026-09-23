@@ -1,5 +1,6 @@
 package net.catcraft.ccmc.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,234 +18,210 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
-/** Full player profile opened from a chat-name click. */
+/** Shared player identity with player actions or a staff action/results workspace. */
 public final class PlayerActionPopupScreen extends Screen {
     private static final int PANEL_WIDTH = 700;
     private static final Pattern PARENTHETICAL_AGO = Pattern.compile("^(.*?)\\s*\\(([^()]*(?:ago|earlier))\\)\\s*\\.?$", Pattern.CASE_INSENSITIVE);
     private static final Pattern SEPARATED_AGO = Pattern.compile("^(.*?)(?:\\s+[-•|]\\s+|,\\s+)(.+?\\bago)\\s*\\.?$", Pattern.CASE_INSENSITIVE);
     private final Screen oldScreen;
     private final String playerName;
-    private final int anchorX;
-    private final int anchorY;
-    private final Tab tab;
+    private Workspace workspace = Workspace.PLAYER;
+    private QueryView selectedQuery;
+    private int resultPage;
+    private Button previousResults;
+    private Button nextResults;
+    private boolean profileLoaded;
 
     public PlayerActionPopupScreen(Screen oldScreen, String playerName, int anchorX, int anchorY) {
-        this(oldScreen, playerName, anchorX, anchorY, Tab.OVERVIEW);
-    }
-
-    private PlayerActionPopupScreen(Screen oldScreen, String playerName, int anchorX, int anchorY, Tab tab) {
         super(Component.literal("CatCraft Player Profile"));
         this.oldScreen = oldScreen;
         this.playerName = playerName;
-        this.anchorX = anchorX;
-        this.anchorY = anchorY;
-        this.tab = tab;
     }
+
+    private int panelWidth() { return Math.min(PANEL_WIDTH, this.width - 24); }
+    private int panelLeft() { return (this.width - panelWidth()) / 2; }
+    private int panelTop() { return Math.max(8, (this.height - 320) / 2); }
+    private boolean wideHeader() { return panelWidth() >= 520; }
+    private int headerHeight() { return wideHeader() ? 100 : 112; }
+    private int contentTop() { return panelTop() + headerHeight() + 20; }
+    private boolean staffWorkspace() { return workspace == Workspace.STAFF && hasStaffAccess(); }
+    private int actionStep() {
+        int available = this.height - contentTop() - 8;
+        return Math.max(14, Math.min(30, available / 6));
+    }
+    private int actionsWidth() {
+        return staffWorkspace() ? (panelWidth() - 10) * 55 / 100 : panelWidth();
+    }
+    private int resultsLeft() { return panelLeft() + actionsWidth() + 10; }
+    private int resultsTop() { return contentTop(); }
+    private int resultsWidth() { return panelWidth() - actionsWidth() - 10; }
+    private int resultsHeight() { return Math.max(92, this.height - resultsTop() - 8); }
+    private int resultLinesPerPage() { return Math.max(1, (resultsHeight() - 72) / 11); }
 
     @Override
     protected void init() {
         super.init();
-        int panelWidth = Math.min(PANEL_WIDTH, this.width - 24);
-        int left = (this.width - panelWidth) / 2;
-        int top = Math.max(8, this.height / 2 - 216);
-        int contentTop = top + 150;
-        addPlayerModel(left + 8, top + 20);
-        addTabs(left, top + 122, panelWidth);
-        switch (this.tab) {
-            case OVERVIEW -> overview(left, contentTop, panelWidth);
-            case ACTIONS -> actions(left, contentTop, panelWidth);
-            case HISTORY -> history(left, contentTop, panelWidth);
-            case COREPROTECT -> coreProtect(left, contentTop, panelWidth);
-            case ANTICHEAT -> antiCheat(left, contentTop, panelWidth);
-            case TRADE_LOGS -> tradeLogs(left, contentTop, panelWidth);
-            case MODERATE -> moderate(left, contentTop, panelWidth);
-        }
-        addSized(left + panelWidth - 58, top, 58, 18, "Close", this::onClose);
-        startAutomaticQuery();
-    }
-
-    private void addPlayerModel(int x, int y) {
+        int left = panelLeft(), top = panelTop(), width = panelWidth();
         PlayerInfo info = playerInfo();
-        if (info == null) return;
-        PlayerSkinWidget widget = new PlayerSkinWidget(72, 96, Minecraft.getInstance().getEntityModels(), info::getSkin);
-        widget.setX(x);
-        widget.setY(y);
-        this.addRenderableWidget(widget);
-    }
-
-    private void addTabs(int left, int y, int width) {
-        Tab[] visible = visibleTabs();
-        int[] tabWidths = new int[visible.length];
-        int naturalWidth = 0;
-        for (int i = 0; i < visible.length; i++) {
-            tabWidths[i] = this.font.width(visible[i].label) + 18;
-            naturalWidth += tabWidths[i];
+        if (info != null) {
+            PlayerSkinWidget model = new PlayerSkinWidget(64, 84, Minecraft.getInstance().getEntityModels(), info::getSkin);
+            model.setX(left + 4); model.setY(top + 22);
+            addRenderableWidget(model);
         }
-        int extra = width - naturalWidth;
-        for (int i = 0; i < visible.length; i++) {
-            int share = extra / (visible.length - i);
-            tabWidths[i] += share;
-            extra -= share;
-        }
-        int x = left;
-        for (int i = 0; i < visible.length; i++) {
-            Tab candidate = visible[i];
-            Button tabButton = Button.builder(Component.literal(candidate.label), button -> switchTab(candidate))
-                    .pos(x, y).size(tabWidths[i], 20).build();
-            tabButton.active = candidate != this.tab;
-            this.addRenderableWidget(tabButton);
-            x += tabWidths[i];
+        int half = hasStaffAccess() ? width / 2 : width;
+        addRenderableWidget(new CommandTab(left, top + headerHeight(), half, "Player Commands", workspace == Workspace.PLAYER,
+                () -> switchWorkspace(Workspace.PLAYER)));
+        if (hasStaffAccess()) addRenderableWidget(new CommandTab(left + half, top + headerHeight(), width - half,
+                "Staff Commands", workspace == Workspace.STAFF, () -> switchWorkspace(Workspace.STAFF)));
+        addRenderableWidget(new ProfileRefreshButton(left + width - 82, top, "Refresh profile",
+                () -> PlayerProfileQueryCapture.beginOverview(playerName, true)));
+        addSized(left + width - 58, top, 58, 18, "Close", this::onClose);
+        if (staffWorkspace()) {
+            staffActions(left, contentTop(), actionsWidth());
+            addResultControls();
+        } else playerActions(left, contentTop(), width);
+        if (!profileLoaded) {
+            profileLoaded = true;
+            PlayerProfileQueryCapture.beginOverview(playerName, false);
         }
     }
 
-    private Tab[] visibleTabs() {
-        if (!hasStaffAccess()) return new Tab[]{Tab.OVERVIEW, Tab.ACTIONS};
-        if (!has(StaffCapability.ADVANCED_INVESTIGATION)) {
-            return new Tab[]{Tab.OVERVIEW, Tab.ACTIONS, Tab.HISTORY, Tab.MODERATE};
+    private void switchWorkspace(Workspace next) {
+        if (next == workspace || (next == Workspace.STAFF && !hasStaffAccess())) return;
+        workspace = next;
+        rebuildWidgets();
+    }
+
+    private void playerActions(int left, int top, int width) {
+        int half = (width - 6) / 2, step = actionStep();
+        row(left, top, half, "Message", () -> prefill("/msg " + playerName + " ", "Message"), "Mail", () -> prefill("/mail send " + playerName + " ", "Mail"));
+        row(left, top + step, half, "TPA", () -> send("tpa " + playerName), "TPA Here", () -> send("tpahere " + playerName));
+        row(left, top + step * 2, half, "Trade", () -> send("trade " + playerName), "Itembox Held Item", () -> prefill("/itembox send " + playerName, "ItemBox Send"));
+        row(left, top + step * 3, half, "Ignore / Unignore", () -> prefill("/ignoreplayer " + playerName, "Ignore Player"), "Give Tamed Pet", () -> prefill("/GivePet " + playerName, "Give Pet"));
+        row(left, top + step * 4, half, "Meow", () -> send("meow " + playerName), "Copy Username", this::copyUsername);
+        add(left, top + step * 5, width, "Full Command List", this::fullCommands);
+    }
+
+    private void staffActions(int left, int top, int width) {
+        int half = (width - 6) / 2, right = left + half + 6, step = actionStep();
+        staffButton(left, top, half, "TPO to Player", StaffCapability.PLAYER_TELEPORT, () -> send("tpo " + playerName));
+        staffButton(right, top, half, "TPO Player Here", StaffCapability.PLAYER_TELEPORT, () -> send("tphere " + playerName));
+        staffButton(left, top + step, half, "Inventory", StaffCapability.BASIC_MODERATION, () -> send("open " + playerName));
+        staffButton(right, top + step, half, "Ender Chest", StaffCapability.BASIC_MODERATION, () -> send("openender " + playerName));
+        staffButton(left, top + step * 2, half, "History", StaffCapability.BASIC_MODERATION, () -> runQuery(QueryView.HISTORY));
+        staffButton(right, top + step * 2, half, "20 Min Mute", StaffCapability.BASIC_MODERATION, () -> LegacyStaffActionScreen.openQuickMute(this, playerName));
+        staffButton(left, top + step * 3, half, "Unmute", StaffCapability.MODERATOR_TOOLS, () -> send("lunmute " + playerName));
+        staffButton(right, top + step * 3, half, "Jail", StaffCapability.BASIC_MODERATION, () -> send("togglejail " + playerName + " 1"));
+        staffButton(left, top + step * 4, half, "Unjail", StaffCapability.BASIC_MODERATION, () -> send("unjail " + playerName));
+        staffButton(right, top + step * 4, half, "Warn", StaffCapability.BASIC_MODERATION, () -> LegacyStaffActionScreen.openQuickWarn(this, playerName));
+        staffButton(left, top + step * 5, half, "Punish", StaffCapability.BASIC_MODERATION, () -> send("punish " + playerName));
+        add(right, top + step * 5, half, "Full Command List", this::fullCommands);
+    }
+
+    private void staffButton(int x, int y, int width, String label, StaffCapability capability, Runnable action) {
+        Button button = Button.builder(Component.literal(label), ignored -> action.run()).pos(x, y).size(width, actionStep() - 3).build();
+        button.active = has(capability);
+        addRenderableWidget(button);
+    }
+
+    private void addResultControls() {
+        int x = resultsLeft(), y = resultsTop(), width = resultsWidth(), half = (width - 16) / 2;
+        int i = 0;
+        for (QueryView query : QueryView.values()) {
+            Button button = Button.builder(Component.literal(query.label), ignored -> runQuery(query))
+                    .pos(x + 6 + (i % 2) * (half + 4), y + 18 + (i / 2) * 18).size(half, 16).build();
+            button.active = has(query.capability);
+            addRenderableWidget(button);
+            i++;
         }
-        return new Tab[]{Tab.OVERVIEW, Tab.ACTIONS, Tab.HISTORY, Tab.COREPROTECT,
-                Tab.ANTICHEAT, Tab.TRADE_LOGS, Tab.MODERATE};
+        addRenderableWidget(new ProfileRefreshButton(x + width - 23, y - 2, "Refresh current query",
+                () -> { if (selectedQuery != null) runQuery(selectedQuery); }));
+        previousResults = Button.builder(Component.literal("<"), ignored -> resultPage = Math.max(0, resultPage - 1))
+                .pos(x + 6, y + resultsHeight() - 18).size(22, 16).build();
+        nextResults = Button.builder(Component.literal(">"), ignored -> resultPage++)
+                .pos(x + width - 28, y + resultsHeight() - 18).size(22, 16).build();
+        previousResults.active = nextResults.active = false;
+        addRenderableWidget(previousResults); addRenderableWidget(nextResults);
     }
 
-    private void overview(int left, int top, int width) {
-        int third = (width - 12) / 3;
-        add(left, top + 56, third, "Refresh Profile", () -> PlayerProfileQueryCapture.beginOverview(this.playerName, true));
-        add(left + third + 6, top + 56, third, "Player Actions", () -> switchTab(Tab.ACTIONS));
-        if (hasStaffAccess()) add(left + (third + 6) * 2, top + 56, third, "Open History", () -> switchTab(Tab.HISTORY));
+    private void runQuery(QueryView query) {
+        if (!has(query.capability)) return;
+        selectedQuery = query; resultPage = 0;
+        PlayerProfileQueryCapture.beginSingle(playerName, query.key, query.command(playerName), true);
     }
 
-    private void actions(int left, int top, int width) {
-        int half = (width - 6) / 2;
-        row(left, top, half, "Message", () -> prefill("/msg " + this.playerName + " ", "Message"), "Mail", () -> prefill("/mail send " + this.playerName + " ", "Mail"));
-        row(left, top + 24, half, "TPA", () -> send("tpa " + this.playerName), "TPA Here", () -> send("tpahere " + this.playerName));
-        row(left, top + 48, half, "Trade", () -> send("trade " + this.playerName), "Ignore / Unignore", () -> prefill("/ignoreplayer " + this.playerName, "Ignore Player"));
-        row(left, top + 72, half, "Send Held Item", () -> prefill("/itembox send " + this.playerName, "ItemBox Send"), "Give Tamed Pet", () -> prefill("/GivePet " + this.playerName, "Give Pet"));
-        row(left, top + 96, half, "Meow", () -> send("meow " + this.playerName), "Purr", () -> send("purr " + this.playerName));
-        row(left, top + 120, half, "Copy Username", this::copyUsername, "Back to Overview", () -> switchTab(Tab.OVERVIEW));
-    }
-
-    private void history(int left, int top, int width) {
-        int half = (width - 6) / 2;
-        row(left, top + 142, half, "Refresh History", () -> PlayerProfileQueryCapture.beginSingle(this.playerName, "history", "history " + this.playerName, true), "Check Playtime", () -> PlayerProfileQueryCapture.beginSingle(this.playerName, "playtime", "eplaytime " + this.playerName, true));
-    }
-
-    private void coreProtect(int left, int top, int width) {
-        int half = (width - 6) / 2;
-        row(left, top + 142, half, "All Actions (2d)", () -> query("coreprotect", "co lookup user:" + this.playerName + " time:2d"), "Containers (2d)", () -> query("coreprotect", "co lookup user:" + this.playerName + " time:2d action:container"));
-        row(left, top + 166, half, "Pickups (2d)", () -> query("coreprotect", "co lookup user:" + this.playerName + " time:2d action:pickup"), "Custom Filter...", () -> prefill("/co lookup user:" + this.playerName + " ", "CoreProtect Lookup"));
-    }
-
-    private void antiCheat(int left, int top, int width) {
-        int half = (width - 6) / 2;
-        row(left, top + 142, half, "Refresh Profile", () -> query("anticheat", "vulcan profile " + this.playerName), "Violations", () -> query("anticheat", "vulcan violations " + this.playerName));
-        row(left, top + 166, half, "CPS", () -> query("anticheat", "vulcan cps " + this.playerName), "Knockback Test", () -> send("vulcan knockback " + this.playerName));
-    }
-
-    private void tradeLogs(int left, int top, int width) {
-        int half = (width - 6) / 2;
-        row(left, top + 142, half, "Refresh Trade Logs", () -> query("trade", "trade logs " + this.playerName), "Open Inventory", () -> send("open " + this.playerName));
-        row(left, top + 166, half, "Open Ender Chest", () -> send("openender " + this.playerName), "Copy Username", this::copyUsername);
-    }
-
-    private void moderate(int left, int top, int width) {
-        int half = (width - 6) / 2;
-        add(left, top, width, "Full Moderation & Investigation", () ->
-                ClientScreens.show(new LegacyStaffActionScreen(this, this.playerName, this.anchorX, this.anchorY)));
-        row(left, top + 24, half, "Punish", () -> send("punish " + this.playerName), "Warn...", () -> prefill("/warn " + this.playerName + " ", "Warn"));
-        row(left, top + 48, half, "Temp Mute...", () -> prefill("/ltempmute " + this.playerName + " ", "Temp Mute"), "Kick...", () -> prefill("/kick " + this.playerName + " ", "Kick"));
-        row(left, top + 72, half, "Jail", () -> send("togglejail " + this.playerName + " 1"), "Unjail", () -> send("unjail " + this.playerName));
-        row(left, top + 96, half, "Unmute", () -> send("lunmute " + this.playerName), "Player Info", () -> query("history", "eplaytime " + this.playerName));
-        if (has(StaffCapability.TEMP_BAN)) add(left, top + 120, width, "Temp Ban...", () -> prefill("/tempban " + this.playerName + " ", "Temp Ban"));
-    }
-
-    private void startAutomaticQuery() {
-        switch (this.tab) {
-            case OVERVIEW -> PlayerProfileQueryCapture.beginOverview(this.playerName, false);
-            case HISTORY -> PlayerProfileQueryCapture.beginSingle(this.playerName, "history", "history " + this.playerName, false);
-            case COREPROTECT -> PlayerProfileQueryCapture.beginSingle(this.playerName, "coreprotect", "co lookup user:" + this.playerName + " time:2d", false);
-            case ANTICHEAT -> PlayerProfileQueryCapture.beginSingle(this.playerName, "anticheat", "vulcan profile " + this.playerName, false);
-            case TRADE_LOGS -> PlayerProfileQueryCapture.beginSingle(this.playerName, "trade", "trade logs " + this.playerName, false);
-            default -> { }
-        }
-    }
-
-    private void query(String key, String command) { PlayerProfileQueryCapture.beginSingle(this.playerName, key, command, true); }
-
-    private void row(int left, int y, int half, String first, Runnable firstAction, String second, Runnable secondAction) {
-        add(left, y, half, first, firstAction);
-        add(left + half + 6, y, half, second, secondAction);
-    }
-
-    private void switchTab(Tab next) {
-        if (next.staffOnly && !hasStaffAccess()) return;
-        ClientScreens.show(new PlayerActionPopupScreen(this.oldScreen, this.playerName, this.anchorX, this.anchorY, next));
+    private void fullCommands() { ClientScreens.show(new StaffMenuScreen(this, staffWorkspace())); }
+    private void row(int left, int y, int half, String a, Runnable aa, String b, Runnable ba) {
+        add(left, y, half, a, aa); add(left + half + 6, y, half, b, ba);
     }
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        // Draw the panel behind its buttons, then the screen/widgets, then profile and live text.
+        if (staffWorkspace()) graphics.fill(resultsLeft(), resultsTop(), resultsLeft() + resultsWidth(), resultsTop() + resultsHeight(), 0x88000000);
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         PlayerProfileQueryCapture.pump();
-        int panelWidth = Math.min(PANEL_WIDTH, this.width - 24);
-        int left = (this.width - panelWidth) / 2;
-        int top = Math.max(8, this.height / 2 - 216);
-        int center = left + panelWidth / 2;
-        graphics.centeredText(this.font, Component.literal("CatCraft Player Profile"), center, top, -1);
-        PlayerInfo info = playerInfo();
-        if (info == null) graphics.centeredText(this.font, Component.literal("?"), left + 44, top + 62, -1);
-        graphics.centeredText(this.font, Component.literal(this.playerName), left + 180, top + 32, -1);
+        int left = panelLeft(), top = panelTop(), width = panelWidth(), textX = left + 78;
+        graphics.text(font, Component.literal("CatCraft Player Profile"), left, top + 4, 0xFFFFFFFF);
+        int identityWidth = wideHeader() ? width * 56 / 100 - 84 : width - 84;
+        profileText(graphics, playerName, textX, top + 24, identityWidth, 0xFFFFFFFF, mouseX, mouseY);
         Component nickname = formattedNickname();
-        String nickText = nickname == null ? "" : nickname.getString();
-        if (!nickText.isBlank() && !nickText.equalsIgnoreCase(this.playerName)) graphics.centeredText(this.font, nickname, left + 180, top + 48, -1);
-        boolean online = isOnline();
-        graphics.centeredText(this.font, Component.literal(online ? "Online now" : "Offline / not in tab list"), left + 180, top + 66, online ? 0xFF55FF55 : 0xFFAAAAAA);
-        int profileLeft = left + 280;
-        int profileWidth = panelWidth - 288;
-        int joinedWidth = Math.min(180, profileWidth);
-        String memberSince = PlayerProfileQueryCapture.value("member_since");
-        renderDataCard(graphics, profileLeft + (profileWidth - joinedWidth) / 2, top + 30, joinedWidth, 38,
-                "Member Since", memberSince == null ? "Not provided" : memberSince);
-        int contentTop = top + 150;
-        if (this.tab == Tab.OVERVIEW) renderOverviewCards(graphics, left, contentTop, panelWidth);
-        else if (this.tab.capturedKey != null) renderResponsePanel(graphics, left, contentTop, panelWidth, this.tab.label, PlayerProfileQueryCapture.lines(this.tab.capturedKey));
-    }
-
-    private void renderOverviewCards(GuiGraphicsExtractor graphics, int left, int top, int width) {
-        int cardWidth = (width - 8) / 3;
-        renderDataCard(graphics, left, top, cardWidth, 44, "Last Seen", overviewSeen());
-        renderDataCard(graphics, left + cardWidth + 4, top, cardWidth, 44, "Playtime", overviewPlaytime());
-        renderDataCard(graphics, left + (cardWidth + 4) * 2, top, cardWidth, 44, "Known As", overviewAlias());
-    }
-
-    private void renderDataCard(GuiGraphicsExtractor graphics, int x, int y, int width, int height, String label, String value) {
-        graphics.fill(x, y, x + width, y + height, 0x88000000);
-        graphics.outline(x, y, width, height, 0xFF555555);
-        graphics.centeredText(this.font, Component.literal(label), x + width / 2, y + 5, 0xFFAAAAAA);
-        String[] lines = value == null ? new String[]{"—"} : value.split("\\n", 2);
-        if (lines.length == 1) {
-            graphics.centeredText(this.font, Component.literal(fit(lines[0], width - 10)), x + width / 2, y + 21, 0xFFFFFFFF);
-        } else {
-            graphics.centeredText(this.font, Component.literal(fit(lines[0], width - 10)), x + width / 2, y + 18, 0xFFFFFFFF);
-            graphics.centeredText(this.font, Component.literal(fit(lines[1], width - 10)), x + width / 2, y + 30, 0xFFBBBBBB);
+        if (nickname != null && !nickname.getString().equalsIgnoreCase(playerName)) {
+            List<FormattedCharSequence> nickLines = font.split(nickname, identityWidth);
+            if (!nickLines.isEmpty()) graphics.text(font, nickLines.getFirst(), textX, top + 36, 0xFFFFFFFF);
+            if (nickLines.size() > 1 && mouseX >= textX && mouseX < textX + identityWidth && mouseY >= top + 36 && mouseY < top + 47)
+                graphics.setTooltipForNextFrame(nickname, mouseX, mouseY);
         }
+        String seen = overviewSeen();
+        boolean online = isOnline() || "Online Now".equals(seen);
+        profileText(graphics, online ? "Online Now" : "Last Seen: " + seen.replace('\n', ' '), textX, top + 48, identityWidth,
+                online ? 0xFF55FF55 : 0xFFCCCCCC, mouseX, mouseY);
+        String joined = PlayerProfileQueryCapture.value("member_since");
+        profileText(graphics, "Member Since: " + (joined == null ? "Not provided" : joined), textX, top + 60, identityWidth, 0xFFCCCCCC, mouseX, mouseY);
+        profileText(graphics, "Playtime: " + overviewPlaytime(), textX, top + 72, identityWidth, 0xFFCCCCCC, mouseX, mouseY);
+        int aliasX = wideHeader() ? left + width * 56 / 100 : textX;
+        int aliasY = wideHeader() ? top + 24 : top + 86;
+        int aliasWidth = left + width - aliasX - 6;
+        if (wideHeader()) {
+            graphics.fill(aliasX, aliasY, left + width, top + 92, 0x44222222);
+            graphics.text(font, Component.literal("Known As"), aliasX + 8, aliasY + 6, 0xFFAAAAAA);
+            wrappedText(graphics, overviewAlias(), aliasX + 8, aliasY + 22, aliasWidth - 10, 4, mouseX, mouseY);
+        } else wrappedText(graphics, "Known As: " + overviewAlias(), aliasX, aliasY, aliasWidth, 2, mouseX, mouseY);
+        if (staffWorkspace()) renderResults(graphics);
     }
 
-    private void renderResponsePanel(GuiGraphicsExtractor graphics, int left, int top, int width, String label, List<String> lines) {
-        graphics.fill(left, top, left + width, top + 136, 0x88000000);
-        graphics.outline(left, top, width, 136, 0xFF555555);
-        graphics.text(this.font, Component.literal(label), left + 8, top + 6, 0xFFAAAAAA);
-        if (lines.isEmpty()) {
-            graphics.text(this.font, Component.literal(fit(PlayerProfileQueryCapture.status(), width - 16)), left + 8, top + 24, 0xFFAAAAAA);
-            return;
-        }
-        int y = top + 24;
-        for (String line : lines) {
-            graphics.text(this.font, Component.literal(fit(line, width - 16)), left + 8, y, 0xFFDDDDDD);
-            y += 12;
-            if (y > top + 120) break;
-        }
+    private void profileText(GuiGraphicsExtractor graphics, String text, int x, int y, int width, int color, int mx, int my) {
+        graphics.text(font, Component.literal(fit(text, width)), x, y, color);
+        if (font.width(text) > width && mx >= x && mx < x + width && my >= y && my < y + 11)
+            graphics.setTooltipForNextFrame(Component.literal(text), mx, my);
     }
 
+    private void wrappedText(GuiGraphicsExtractor graphics, String text, int x, int y, int width, int maxLines, int mx, int my) {
+        List<FormattedCharSequence> lines = font.split(Component.literal(text), width);
+        for (int i = 0; i < Math.min(maxLines, lines.size()); i++) graphics.text(font, lines.get(i), x, y + i * 11, 0xFFCCCCCC);
+        if (lines.size() > maxLines && mx >= x && mx < x + width && my >= y && my < y + maxLines * 11)
+            graphics.setTooltipForNextFrame(Component.literal(text), mx, my);
+    }
+
+    private void renderResults(GuiGraphicsExtractor graphics) {
+        int x = resultsLeft(), y = resultsTop(), width = resultsWidth();
+        graphics.text(font, Component.literal(selectedQuery == null ? "Query Results" : selectedQuery.label), x + 6, y + 4, 0xFFCCCCCC);
+        List<FormattedCharSequence> lines = new ArrayList<>();
+        if (selectedQuery == null) lines.addAll(font.split(Component.literal("Select History or a query above to view its response here."), width - 12));
+        else {
+            for (String message : PlayerProfileQueryCapture.lines(selectedQuery.key))
+                for (String line : message.split("\\R")) lines.addAll(font.split(Component.literal(line), width - 12));
+            if (lines.isEmpty()) lines.addAll(font.split(Component.literal(PlayerProfileQueryCapture.status()), width - 12));
+        }
+        int capacity = resultLinesPerPage(), pages = Math.max(1, (lines.size() + capacity - 1) / capacity);
+        resultPage = Math.min(resultPage, pages - 1);
+        for (int i = 0, index = resultPage * capacity; i < capacity && index < lines.size(); i++, index++)
+            graphics.text(font, lines.get(index), x + 6, y + 58 + i * 11, 0xFFDDDDDD);
+        previousResults.active = resultPage > 0; nextResults.active = resultPage + 1 < pages;
+        graphics.centeredText(font, Component.literal((resultPage + 1) + " / " + pages), x + width / 2, y + resultsHeight() - 14, 0xFFAAAAAA);
+    }
     private String overviewSeen() {
         if (isOnline()) return "Online Now";
         for (String line : PlayerProfileQueryCapture.lines("seen")) {
@@ -343,7 +320,7 @@ public final class PlayerActionPopupScreen extends Screen {
     }
 
     private void copyUsername() { Minecraft.getInstance().keyboardHandler.setClipboard(this.playerName); }
-    private void add(int x, int y, int width, String label, Runnable action) { addSized(x, y, width, 20, label, action); }
+    private void add(int x, int y, int width, String label, Runnable action) { addSized(x, y, width, actionStep() - 3, label, action); }
     private void addSized(int x, int y, int width, int height, String label, Runnable action) {
         this.addRenderableWidget(Button.builder(Component.literal(label), button -> action.run()).pos(x, y).size(width, height).build());
     }
@@ -352,13 +329,22 @@ public final class PlayerActionPopupScreen extends Screen {
     @Override
     public void onClose() { ClientScreens.show(this.oldScreen); }
 
-    private enum Tab {
-        OVERVIEW("Overview", false, null), ACTIONS("Actions", false, null), HISTORY("History", true, "history"),
-        COREPROTECT("CoreProtect", true, "coreprotect"), ANTICHEAT("Anti-Cheat", true, "anticheat"),
-        TRADE_LOGS("Trade Logs", true, "trade"), MODERATE("Staff", true, null);
-        final String label;
-        final boolean staffOnly;
-        final String capturedKey;
-        Tab(String label, boolean staffOnly, String capturedKey) { this.label = label; this.staffOnly = staffOnly; this.capturedKey = capturedKey; }
+    private enum Workspace { PLAYER, STAFF }
+    private enum QueryView {
+        HISTORY("History", "history", StaffCapability.BASIC_MODERATION),
+        BLOCKS("Block Logs", "coreprotect", StaffCapability.ADVANCED_INVESTIGATION),
+        TRADES("Trade Logs", "trade", StaffCapability.BASIC_MODERATION),
+        ANTICHEAT("Anti-Cheat", "anticheat", StaffCapability.ADVANCED_INVESTIGATION);
+        final String label, key;
+        final StaffCapability capability;
+        QueryView(String label, String key, StaffCapability capability) { this.label = label; this.key = key; this.capability = capability; }
+        String command(String player) {
+            return switch (this) {
+                case HISTORY -> "history " + player;
+                case BLOCKS -> "co lookup user:" + player + " time:2d";
+                case TRADES -> "trade logs " + player;
+                case ANTICHEAT -> "vulcan profile " + player;
+            };
+        }
     }
 }

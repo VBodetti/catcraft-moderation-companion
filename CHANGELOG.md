@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+- Made the player profile the action screen, with slimmer Player and Staff tabs and taller direct-action buttons
+- Left-aligned player details and moved Member Since, Playtime, and online or last-seen status into readable profile labels; expanded Known As space
+- Replaced the large Refresh action with a small profile refresh control, moved Itembox Held Item and Ignore, and added a direct Full Command List action
+- Added inline, paged staff query results alongside capability-filtered actions and query shortcuts
+- Added Player and Staff command tabs and a clear search hint in the full command tree
+- Removed the nonexistent Member rank; new settings default to Lion player rank and no staff role
+- Distributed the same tested Fabric artifact for Quilt, with Fabric dependencies installed manually where the launcher hides them
+
 ## 1.1.0
 
 - Added a dedicated NeoForge 26.2 distribution while preserving the existing Fabric release

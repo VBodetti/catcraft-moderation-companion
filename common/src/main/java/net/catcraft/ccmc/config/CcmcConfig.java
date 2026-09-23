@@ -189,7 +189,7 @@ public final class CcmcConfig {
     }
 
     static {
-        DEFAULTS.put("config.version", 3.0);
+        DEFAULTS.put("config.version", 4.0);
         DEFAULTS.put("general.Timestamp.Enabled", true);
         DEFAULTS.put("general.Timestamp.Pattern", "&8[{hour}:{minute}:{second}] &r");
         DEFAULTS.put("general.Timestamp.CopyToChatBar.Enabled", true);
@@ -197,8 +197,8 @@ public final class CcmcConfig {
         DEFAULTS.put("general.MessageStacking.ExactMatchOnly", false);
         DEFAULTS.put("general.MessageStacking.MaxRepeatCount", 100);
         DEFAULTS.put("general.StoredChatLines", 500);
-        DEFAULTS.put("catcraft.PlayerRank", "member");
-        DEFAULTS.put("catcraft.StaffRole", "moderator");
+        DEFAULTS.put("catcraft.PlayerRank", "lion");
+        DEFAULTS.put("catcraft.StaffRole", "none");
         DEFAULTS.put("catcraft.PlayerClickMode", "normal");
         DEFAULTS.put("general.ChatIntegrationMode", "auto");
     }
