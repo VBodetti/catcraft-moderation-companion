@@ -40,7 +40,7 @@ public enum StaffRole {
     public static StaffRole parse(String value) {
         String normalized;
         if (value == null) {
-            return MODERATOR;
+            return NONE;
         }
         return switch (normalized = StaffRole.normalize(value)) {
             case "none", "player", "member" -> NONE;
@@ -51,7 +51,7 @@ public enum StaffRole {
             case "senior administrator", "senior admin", "sr administrator", "sr admin" -> SENIOR_ADMINISTRATOR;
             case "developer", "dev" -> DEVELOPER;
             case "owner" -> OWNER;
-            default -> MODERATOR;
+            default -> NONE;
         };
     }
 
@@ -63,4 +63,3 @@ public enum StaffRole {
         return this.displayName;
     }
 }
-

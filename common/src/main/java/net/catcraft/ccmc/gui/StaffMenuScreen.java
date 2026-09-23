@@ -42,6 +42,10 @@ extends Screen {
         this(screen, View.ROOT, 0);
     }
 
+    public StaffMenuScreen(Screen screen, boolean staff) {
+        this(screen, staff ? View.STAFF : View.ROOT, 0);
+    }
+
     private StaffMenuScreen(Screen screen, View view) {
         this(screen, view, 0);
     }
@@ -60,23 +64,25 @@ extends Screen {
     protected void init() {
         super.init();
         int n = Math.max(8, this.width / 2 - 168);
-        if (this.view == View.ROOT && this.searchTarget == null) {
+        if ((this.view == View.ROOT || this.view == View.STAFF) && this.searchTarget == null) {
             int searchTop = Math.max(26, this.height / 2 - 106);
+            if (this.role() != StaffRole.NONE) this.addCommandTabs(n, searchTop - 24);
             EditBox search = new EditBox(this.font, n, searchTop, PANEL_WIDTH, BUTTON_HEIGHT,
                     Component.literal("Search CatCraft Companion"));
             search.setMaxLength(64);
-            search.setHint(Component.literal("Search commands and buttons..."));
+            search.setHint(Component.literal("Search all commands here"));
             search.setValue(this.commandSearchQuery);
             search.setCursorPosition(this.commandSearchQuery.length());
             search.setResponder(this::commandSearchChanged);
             this.addRenderableWidget(search);
             this.setInitialFocus(search);
             int contentTop = searchTop + 28;
-            if (this.commandSearchQuery.isBlank()) this.root(n, contentTop);
+            if (this.commandSearchQuery.isBlank()) this.renderCurrentView(n, contentTop);
             else this.renderCommandSearch(n, contentTop);
             return;
         }
         int n2 = Math.max(26, this.height / 2 - 82);
+        if (this.searchTarget == null && this.role() != StaffRole.NONE) this.addCommandTabs(n, n2 - 24);
         this.renderCurrentView(n, n2);
     }
 
@@ -299,11 +305,7 @@ extends Screen {
         this.grid(n, n2, n3++, "Travel & Homes", () -> this.show(View.TRAVEL), "Player & Social", () -> this.show(View.SOCIAL));
         this.grid(n, n2, n3++, "Claims & Pets", () -> this.show(View.CLAIMS), "Market & Trading", () -> this.show(View.MARKET));
         this.grid(n, n2, n3++, "Clans", () -> this.show(View.CLANS), "Utilities & Perks", () -> this.show(View.UTILITIES));
-        if (this.role() != StaffRole.NONE) {
-            this.grid(n, n2, n3++, "Staff Tools", () -> this.show(View.STAFF), "Settings & Profile", this::settings);
-        } else {
-            this.full(n, n2, n3++, "Settings & Profile", this::settings);
-        }
+        this.full(n, n2, n3++, "Settings & Profile", this::settings);
         this.full(n, n2, n3++, "Find Player", () -> PlayerSearchScreen.open(this));
         int n4 = n2 + n3 * 24 + 8;
         this.full(n, n4, 0, this.profileLabel(), this::settings);
@@ -377,7 +379,7 @@ extends Screen {
 
     private void socialMailItemBox(int n, int n2) {
         this.grid(n, n2, 0, "Send Mail...", () -> this.prefill("/mail send ", "Mail"), "Read Mail", () -> this.send("mail read"));
-        this.grid(n, n2, 1, "Send Held Item...", () -> this.prefill("/itembox send ", "ItemBox Send"), "Open ItemBox", () -> this.send("itembox open"));
+        this.grid(n, n2, 1, "Itembox Held Item...", () -> this.prefill("/itembox send ", "ItemBox Send"), "Open ItemBox", () -> this.send("itembox open"));
         this.full(n, n2, 2, "Claim All ItemBox Items", () -> this.send("itembox claimall"));
         this.nav(n, n2 + 72 + 10, View.SOCIAL);
     }
@@ -728,6 +730,18 @@ extends Screen {
         this.add(n + (n3 + 6) * 2, n2, n3, "Close", this::closeToPrevious);
     }
 
+    private void addCommandTabs(int left, int top) {
+        boolean staff = inStaffSection();
+        addRenderableWidget(new CommandTab(left, top, PANEL_WIDTH / 2, "Player Commands", !staff,
+                () -> { if (staff) show(View.ROOT); }));
+        addRenderableWidget(new CommandTab(left + PANEL_WIDTH / 2, top, PANEL_WIDTH / 2, "Staff Commands", staff,
+                () -> { if (!staff) show(View.STAFF); }));
+    }
+
+    private boolean inStaffSection() {
+        return this.view.ordinal() >= View.STAFF.ordinal();
+    }
+
     private void add(int n, int n2, int n3, String string, Runnable runnable) {
         if (this.searchTarget != null) {
             if (this.isSearchableLabel(string)) {
@@ -851,7 +865,7 @@ extends Screen {
     private int homeCapacity() {
         return switch (this.playerRank()) {
             default -> throw new MatchException(null, null);
-            case PlayerRank.MEMBER, PlayerRank.CAT -> 2;
+            case PlayerRank.CAT -> 2;
             case PlayerRank.LEOPARD -> 3;
             case PlayerRank.CHEETAH -> 5;
             case PlayerRank.JAGUAR -> 12;

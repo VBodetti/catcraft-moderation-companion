@@ -4,7 +4,7 @@ CatCraft Companion (CCC) is a client-side Fabric and NeoForge mod for CatCraft, 
 
 ## Version
 
-**1.1.0** for Minecraft Java **26.2**.
+**1.1.1** for Minecraft Java **26.2**.
 
 ## Loader support
 
@@ -24,9 +24,10 @@ All distributions require Minecraft Java 26.2 and Java 25. Mod Menu is optional 
 - Live completion-backed Homes and Kits selectors plus a compact CatCraft Warps selector
 - Search for online or offline players and open their player profile
 - Player profiles with skin, username, formatted nickname, online/last-seen state, playtime, and joined date when CatCraft exposes those values
-- Player actions including TPA, TPA Here, Trade, Message, Mail, Ignore, GivePet, Meow, and Purr
-- Staff profile tabs for history, CoreProtect, anti-cheat, trade logs, investigation, and moderation
+- Player actions directly on the profile, including Message, Mail, TPA, TPA Here, Trade, Itembox Held Item, Ignore, GivePet, and Meow
+- Player and Staff command tabs on the same profile; staff can view paged history, CoreProtect, anti-cheat, and trade query results beside their actions
 - Separate Player Rank and Staff Role settings with capability-based filtering
+- Cat is the lowest player rank; fresh installations default to Lion player rank and no staff role
 - Correct Moderator commands for Unmute (`/lunmute`), Jail (`/togglejail PLAYER 1`), and Unjail (`/unjail PLAYER`)
 - Discord moderation-report capture for fixed punishment actions
 - Optional timestamps, timestamp-only copy options, retained chat history, and conflict-aware chat integration

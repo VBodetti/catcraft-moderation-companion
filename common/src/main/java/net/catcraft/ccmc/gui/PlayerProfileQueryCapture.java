@@ -94,7 +94,7 @@ public final class PlayerProfileQueryCapture {
         if (text == null || (text = text.trim()).isBlank()) return;
         if (!matchesCurrentResponse(text)) return;
         List<String> lines = responses.computeIfAbsent(current.key, ignored -> new ArrayList<>());
-        if (lines.size() < 14) lines.add(text);
+        if (lines.size() < 128) lines.add(text);
         lastMessageAt = now;
         status = "Live CatCraft response";
     }

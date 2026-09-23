@@ -36,6 +36,7 @@ public final class MenuSearchScreen extends Screen {
         int top = Math.max(42, this.height / 2 - 118);
         EditBox search = new EditBox(this.font, left, top, WIDTH, 20, Component.literal("Search commands"));
         search.setMaxLength(64);
+        search.setHint(Component.literal("Search all commands here"));
         search.setValue(this.query);
         search.setCursorPosition(this.query.length());
         search.setResponder(this::queryChanged);

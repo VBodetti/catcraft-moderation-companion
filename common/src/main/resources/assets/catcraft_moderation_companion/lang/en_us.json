@@ -31,7 +31,7 @@
   "key.ccmc.general.ChatIntegrationMode.@Tooltip": "auto = yield overlapping chat features when a supported external chat processor is detected; ccc = force CatCraft Companion timestamps/history; external = disable CatCraft Companion chat processing. Staff tools remain active in all modes. The legacy ccmc value is also accepted.",
   "key.ccmc.category.profile": "CatCraft Profile",
   "key.ccmc.catcraft.PlayerRank": "Player Rank",
-  "key.ccmc.catcraft.PlayerRank.@Tooltip": "Your CatCraft player/store rank. Member, Cat, Leopard, Cheetah, Jaguar, Tiger, and Lion are cumulative for command filtering.",
+  "key.ccmc.catcraft.PlayerRank.@Tooltip": "Your CatCraft player/store rank. Cat, Leopard, Cheetah, Jaguar, Tiger, and Lion are cumulative for command filtering.",
   "key.ccmc.catcraft.StaffRole": "Staff Role",
   "key.ccmc.catcraft.StaffRole.@Tooltip": "Your CatCraft staff role. Staff commands are filtered independently from your player rank; Developer is treated as a separate technical role."
 }

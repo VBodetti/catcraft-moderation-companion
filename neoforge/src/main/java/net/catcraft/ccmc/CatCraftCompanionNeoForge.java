@@ -83,7 +83,6 @@ public final class CatCraftCompanionNeoForge {
                         .then(Commands.literal("profile").executes(ctx -> this.showProfile()))
                         .then(Commands.literal("player-rank")
                                 .executes(ctx -> this.showPlayerRank())
-                                .then(this.playerRankLiteral("member", PlayerRank.MEMBER))
                                 .then(this.playerRankLiteral("cat", PlayerRank.CAT))
                                 .then(this.playerRankLiteral("leopard", PlayerRank.LEOPARD))
                                 .then(this.playerRankLiteral("cheetah", PlayerRank.CHEETAH))

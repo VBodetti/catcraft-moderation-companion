@@ -31,6 +31,14 @@ extends Screen {
         this(screen, string, n, n2, LegacyStaffActionScreen.defaultMode(), View.ROOT, null);
     }
 
+    public static void openQuickMute(Screen parent, String playerName) {
+        ClientScreens.show(new LegacyStaffActionScreen(parent, playerName, 20, 40, Mode.STAFF, View.TEMP_MUTE_REASON, "20m"));
+    }
+
+    public static void openQuickWarn(Screen parent, String playerName) {
+        ClientScreens.show(new LegacyStaffActionScreen(parent, playerName, 20, 40, Mode.STAFF, View.WARN, null));
+    }
+
     private LegacyStaffActionScreen(Screen screen, String string, int n, int n2, Mode mode, View view, String string2) {
         super((Component)Component.literal((String)(mode == Mode.STAFF ? "CatCraft Staff Actions" : "CatCraft Player Actions")));
         this.oldScreen = screen;
@@ -242,10 +250,9 @@ extends Screen {
         }
     }
 
-    private void addTabs(int n, int n2, int n3) {
-        int n4 = n3 / 2 - 2;
-        this.addSized(n, n2, n4, 16, this.mode == Mode.STAFF ? "[Staff]" : "Staff", () -> this.switchMode(Mode.STAFF));
-        this.addSized(n + n3 / 2 + 2, n2, n4, 16, this.mode == Mode.PLAYER ? "[Player]" : "Player", () -> this.switchMode(Mode.PLAYER));
+    private void addTabs(int x, int y, int width) {
+        addRenderableWidget(new CommandTab(x, y, width / 2, "Player", mode == Mode.PLAYER, () -> switchMode(Mode.PLAYER)));
+        addRenderableWidget(new CommandTab(x + width / 2, y, width / 2, "Staff", mode == Mode.STAFF, () -> switchMode(Mode.STAFF)));
     }
 
     private void playerActions(int n, int n2, int n3, int n4) {
