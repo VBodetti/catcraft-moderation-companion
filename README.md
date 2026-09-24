@@ -4,17 +4,17 @@ CatCraft Companion (CCC) is a client-side Fabric and NeoForge mod for CatCraft, 
 
 ## Version
 
-**1.1.1** for Minecraft Java **26.2**.
+**1.1.1** for Minecraft Java **26.3**.
 
 ## Loader support
 
-- **Fabric:** Fabric Loader 0.19.5+, Fabric API 0.160.0+26.2, and Cloth Config 26.2.155+
-- **NeoForge:** NeoForge 26.2.0.88+ and Cloth Config 26.2.155+
-- **Quilt:** the Fabric artifact with a compatible Quilt Loader, plus the **Fabric** builds of Fabric API 0.160.0+26.2 and Cloth Config 26.2.155
+- **Fabric:** Fabric Loader 0.19.5+, Fabric API 0.161.0+26.3, and Cloth Config 26.3.158+
+- **NeoForge:** NeoForge 26.3.0.16-beta+ and Cloth Config 26.3.158+
+- **Quilt:** the Fabric artifact with a compatible Quilt Loader, plus the **Fabric** builds of Fabric API 0.161.0+26.3 and Cloth Config 26.3.158
 
-The Modrinth App may hide Fabric API and Cloth Config when adding content to a Quilt profile because those dependency releases are tagged Fabric. Quilt users must download the two Fabric dependency JARs and place them directly in the profile's `mods` folder. This exact setup has passed in-game testing on Minecraft 26.2.
+The Modrinth App may hide Fabric API and Cloth Config when adding content to a Quilt profile because those dependency releases are tagged Fabric. Quilt users must download the two Fabric dependency JARs and place them directly in the profile's `mods` folder.
 
-All distributions require Minecraft Java 26.2 and Java 25. Mod Menu is optional on Fabric and Quilt; NeoForge exposes the settings screen through its native mod list.
+All distributions require Minecraft Java 26.3 and Java 25. Mod Menu is optional on Fabric and Quilt; NeoForge exposes the settings screen through its native mod list.
 
 ## Features
 
@@ -28,7 +28,7 @@ All distributions require Minecraft Java 26.2 and Java 25. Mod Menu is optional 
 - Player and Staff command tabs on the same profile; staff can view paged history, CoreProtect, anti-cheat, and trade query results beside their actions
 - Separate Player Rank and Staff Role settings with capability-based filtering
 - Cat is the lowest player rank; fresh installations default to Lion player rank and no staff role
-- Correct Moderator commands for Unmute (`/lunmute`), Jail (`/togglejail PLAYER 1`), and Unjail (`/unjail PLAYER`)
+- Correct Moderator commands for Unmute (`/lunmute`), Jail (`/jail PLAYER`), and Unjail (`/unjail PLAYER`)
 - Discord moderation-report capture for fixed punishment actions
 - Optional timestamps, timestamp-only copy options, retained chat history, and conflict-aware chat integration
 
@@ -44,7 +44,7 @@ Chat Integration Mode supports:
 
 ## Build
 
-This project targets Java 25 and Minecraft 26.2. Shared code lives under `common/`; the loader adapters live under `fabric/` and `neoforge/`. Build both distributions with Gradle 9.7.1 or a compatible Gradle 9 release:
+This project targets Java 25 and Minecraft 26.3. Shared code lives under `common/`; the loader adapters live under `fabric/` and `neoforge/`. Build both distributions with Gradle 9.7.1 or a compatible Gradle 9 release:
 
 ```bash
 gradle build

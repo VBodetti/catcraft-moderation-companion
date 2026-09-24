@@ -1,6 +1,7 @@
 package net.catcraft.ccmc.mixin;
 
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.catcraft.ccmc.chat.ChatHistoryStore;
 import net.catcraft.ccmc.chat.ChatMessageRecord;
 import net.catcraft.ccmc.client.ClientScreens;
@@ -13,7 +14,6 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -54,13 +54,13 @@ public class PlayerNameClickMixin {
     }
 
     private boolean ccmc$isShiftDown() {
-        long handle = Minecraft.getInstance().getWindow().handle();
-        return GLFW.glfwGetKey((long)handle, (int)340) == 1 || GLFW.glfwGetKey((long)handle, (int)344) == 1;
+        return InputConstants.isKeyDown(InputConstants.KEY_LSHIFT)
+                || InputConstants.isKeyDown(InputConstants.KEY_RSHIFT);
     }
 
     private boolean ccmc$isCtrlDown() {
-        long handle = Minecraft.getInstance().getWindow().handle();
-        return GLFW.glfwGetKey((long)handle, (int)341) == 1 || GLFW.glfwGetKey((long)handle, (int)345) == 1;
+        return InputConstants.isKeyDown(InputConstants.KEY_LCONTROL)
+                || InputConstants.isKeyDown(InputConstants.KEY_RCONTROL);
     }
 
     private String ccmc$extractPlayerName(Style style) {
@@ -114,17 +114,11 @@ public class PlayerNameClickMixin {
 
     private int ccmc$cursorGuiX() {
         Window window = Minecraft.getInstance().getWindow();
-        double[] x = new double[1];
-        double[] y = new double[1];
-        GLFW.glfwGetCursorPos((long)window.handle(), (double[])x, (double[])y);
-        return (int)(x[0] * (double)window.getGuiScaledWidth() / (double)window.getScreenWidth());
+        return (int)(Minecraft.getInstance().mouseHandler.xpos() * (double)window.getGuiScaledWidth() / (double)window.getScreenWidth());
     }
 
     private int ccmc$cursorGuiY() {
         Window window = Minecraft.getInstance().getWindow();
-        double[] x = new double[1];
-        double[] y = new double[1];
-        GLFW.glfwGetCursorPos((long)window.handle(), (double[])x, (double[])y);
-        return (int)(y[0] * (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
+        return (int)(Minecraft.getInstance().mouseHandler.ypos() * (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
     }
 }
